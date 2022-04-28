@@ -1,0 +1,20 @@
+{
+  "name": "pcpm",
+  "version": "0.0.1",
+  "description": "A Package Manager Extension for PlayCanvas",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node build.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "type": "module",
+  "author": "Mark Lundin",
+  "license": "ISC",
+  "devDependencies": {
+    "esbuild": "^0.14.38",
+    "ws": "^8.5.0"
+  },
+  "dependencies": {
+    "diff-match-patch-js-browser-and-nodejs": "^1.0.2"
+  }
+}
