@@ -1,6 +1,7 @@
 import NoPackageJson from './no-package';
 import * as DiffMatchPatch from 'diff-match-patch-js-browser-and-nodejs/diff_match_patch.js';
 import { diff2Op } from './utils';
+import PackagePanel from './package-panel';
 
 const MAX_RESULTS = 5
 const MIN_SEARCH_NUM_CHAR = 3
@@ -141,28 +142,30 @@ export default class PackageManagerSettings extends pcui.BaseSettingsPanel {
         })
 
         const onPackageDocUpdated = _ => {
-            
+            if(!packageDoc?.data) return
             // installedPkgsCont.clear()
             const { dependencies } = JSON.parse(packageDoc.data)
 
-            console.log('DOC LOADED', packageDoc)
             installedPkgsCont.clear()
 
-            Object.keys(dependencies).forEach((name, i) => {
-                const packagePanel = new pcui.Panel({
-                    headerText: name,
-                    removable: true,
-                    collapsible: true,
-                    collapsed: true
-                })
-                const info = new pcui.InfoBox({
-                    icon: 'E218',
-                    title: name,
-                    text: 'SOME INFO'
-                })
+            Object.keys(dependencies).forEach(async (name, i) => {
+                const module = await fetch(`https://registry.npmjs.com/${name}/${dependencies[name]}`).then(r => r.json())
+                // console.log(resp)
+                const packagePanel = new PackagePanel(module)
+                // const packagePanel = new pcui.Panel({
+                //     headerText: name,
+                //     removable: true,
+                //     collapsible: true,
+                //     collapsed: true
+                // })
+                // const info = new pcui.InfoBox({
+                //     icon: 'E218',
+                //     title: name,
+                //     text: 'SOME INFO'
+                // })
                 packagePanel.class.add('layers-settings-panel-layer-panel');
                 packagePanel.once('click:remove', _ => removePackage({ name }))
-                packagePanel.append(info)
+                // packagePanel.append(info)
                 installedPkgsCont.append(packagePanel)
             })
         }
@@ -179,7 +182,6 @@ export default class PackageManagerSettings extends pcui.BaseSettingsPanel {
             installedPkgsCont.hidden = !doc
             noPackageWarn.hidden = !!doc
 
-            console.log('DOC FS CHANGE', doc)
             // subscribe to all new events
             // doc?.once("load", onPackageDocUpdated )
             doc?.on("op", onPackageDocUpdated )

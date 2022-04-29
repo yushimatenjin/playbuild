@@ -10,7 +10,7 @@ const createPackageJson = _ => {
             source: false,
             // parent: (args.parent !== undefined) ? args.parent : editor.call('assets:panel:currentFolder'),
             filename: 'package.json',
-            file: new Blob(['{dependencies:{}}'], { type: 'application/json' }),
+            file: new Blob([JSON.stringify({dependencies:{}}, null, 4)], { type: 'application/json' }),
             scope: {
                 type: 'project',
                 id: config.project.id
@@ -19,14 +19,6 @@ const createPackageJson = _ => {
 
         const onDone = r => {
             resolve()
-            // const pp = editor.assets.findOne(asset =>
-            //     asset.get('type') === 'json' &&
-            //     asset.get('name') === 'package.json' &&
-            //     asset.get('path').length === 0 )
-
-            // const doc = editor.call('realtime:connection').get('documents', pp.get('uniqueId').toString())
-            // doc.subscribe(err => !err && resolve(doc.data))
-            
         }
 
         editor.call('assets:create', asset, onDone, true);
@@ -52,7 +44,7 @@ export default class NoPackageJson extends pcui.Container {
         addPackageJsonBtn.on('click', async _ => {
             addPackageJsonBtn.enabled = false
             const pkg = await createPackageJson()
-            // this.emit('package:created', pkg)
+            this.emit('package:created', pkg)
             addPackageJsonBtn.enabled = true
         })
 

@@ -7,7 +7,7 @@ editor.assets.on('load:progress', progress => {
   if(progress < 1) return
   editor.assets.unbind('load:progress')
   
-  console.log('ATTACHING PACAKAGE MANAGER')
+  // console.log('ATTACHING PACKAGE MANAGER')
   const panel = new PackageManagerSettings()
   // panel.on('package:selected', ({ name, version }) => {
   
