@@ -161,7 +161,7 @@ export default class PackageManagerSettings extends pcui.BaseSettingsPanel {
                     text: 'SOME INFO'
                 })
                 packagePanel.class.add('layers-settings-panel-layer-panel');
-                packagePanel.once('click:remove', _ => console.log('removing package', name))
+                packagePanel.once('click:remove', _ => removePackage({ name }))
                 packagePanel.append(info)
                 installedPkgsCont.append(packagePanel)
             })
