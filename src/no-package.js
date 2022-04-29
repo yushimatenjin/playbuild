@@ -1,26 +1,36 @@
 const createPackageJson = _ => {
-    if (! editor.call('permissions:write')) return
+    return new Promise((resolve, reject) => {
+        if (! editor.call('permissions:write')) return
 
-    // args = args || { };
+        // args = args || { };
 
-    var asset = {
-        name: 'package.json',
-        type: 'json',
-        source: false,
-        // parent: (args.parent !== undefined) ? args.parent : editor.call('assets:panel:currentFolder'),
-        filename: 'package.json',
-        file: new Blob(['{dependencies:{}}'], { type: 'application/json' }),
-        scope: {
-            type: 'project',
-            id: config.project.id
+        var asset = {
+            name: 'package.json',
+            type: 'json',
+            source: false,
+            // parent: (args.parent !== undefined) ? args.parent : editor.call('assets:panel:currentFolder'),
+            filename: 'package.json',
+            file: new Blob(['{dependencies:{}}'], { type: 'application/json' }),
+            scope: {
+                type: 'project',
+                id: config.project.id
+            }
+        };
+
+        const onDone = r => {
+            resolve()
+            // const pp = editor.assets.findOne(asset =>
+            //     asset.get('type') === 'json' &&
+            //     asset.get('name') === 'package.json' &&
+            //     asset.get('path').length === 0 )
+
+            // const doc = editor.call('realtime:connection').get('documents', pp.get('uniqueId').toString())
+            // doc.subscribe(err => !err && resolve(doc.data))
+            
         }
-    };
 
-    const onDone = _ => {
-        console.log('on  DONE')
-    }
-
-    editor.call('assets:create', asset, onDone, true);
+        editor.call('assets:create', asset, onDone, true);
+    })
 }
 
 export default class NoPackageJson extends pcui.Container {
@@ -35,25 +45,14 @@ export default class NoPackageJson extends pcui.Container {
         })
 
         const addPackageJsonBtn = new pcui.Button({
+            icon: 'E120',
             text: 'Add package.json'
         })
 
         addPackageJsonBtn.on('click', async _ => {
             addPackageJsonBtn.enabled = false
-            createPackageJson()
-            // await editor.assets.createJson({
-            //     name: 'package.json',
-            //     preload: false,
-            //     exclude: true,
-            //     onProgress: _ => {
-            //         debugger
-            //         console.log('CREQATE JSON UP_LAOD COMPLETE')
-            //     },
-            //     json: {
-            //         name: config.project.name,
-            //         dependencies:{}
-            //     }
-            // })  
+            const pkg = await createPackageJson()
+            // this.emit('package:created', pkg)
             addPackageJsonBtn.enabled = true
         })
 

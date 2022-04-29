@@ -43,7 +43,7 @@ export default class PackageManagerSettings extends pcui.BaseSettingsPanel {
             headerText: 'PACKAGE MANANGER'
         })
 
-        this.style.position = "relative";
+        // this.style.position = "relative";
 
         let packageDoc
         let currentSearch
@@ -54,6 +54,7 @@ export default class PackageManagerSettings extends pcui.BaseSettingsPanel {
         const noPackageWarn = new NoPackageJson()
 
         this.append(noPackageWarn)
+        installedPkgsCont.style.margin = '3px 10px'
 
         editor.on('attributes:beforeClear', () => {
             this.unlink();
@@ -94,7 +95,7 @@ export default class PackageManagerSettings extends pcui.BaseSettingsPanel {
         const addPackage = ({ name, version }) => {
             
             const localPkg = JSON.parse(packageDoc.data)
-            localPkg.dependencies[name] = version
+            localPkg.dependencies = { ...localPkg.dependencies, [name]: version }
             
             updatePackageJson(localPkg)
         }
@@ -102,7 +103,7 @@ export default class PackageManagerSettings extends pcui.BaseSettingsPanel {
         const removePackage = ({ name }) => {
 
             const localPkg = JSON.parse(packageDoc.data)
-            delete localPkg.dependencies[name]
+            delete localPkg.dependencies?.[name]
             
             updatePackageJson(localPkg)
         }
@@ -124,6 +125,7 @@ export default class PackageManagerSettings extends pcui.BaseSettingsPanel {
                 const info = results[i]
                 info.dom.onmousedown = e => {
                     searchInput.value = ''
+                    searchInput.blur()
                     resultsCont.hidden = true
                     addPackage(object.package)
                 }
@@ -144,18 +146,23 @@ export default class PackageManagerSettings extends pcui.BaseSettingsPanel {
             const { dependencies } = JSON.parse(packageDoc.data)
 
             console.log('DOC LOADED', packageDoc)
+            installedPkgsCont.clear()
 
             Object.keys(dependencies).forEach((name, i) => {
-                // const packagePanel = new pcui.Panel({
-                //     headerText: name + ' ' + version,
-                //     removable: true
-                // })
-                const packagePanel = new pcui.InfoBox({
+                const packagePanel = new pcui.Panel({
+                    headerText: name,
+                    removable: true,
+                    collapsible: true,
+                    collapsed: true
+                })
+                const info = new pcui.InfoBox({
                     icon: 'E218',
                     title: name,
                     text: 'SOME INFO'
                 })
+                packagePanel.class.add('layers-settings-panel-layer-panel');
                 packagePanel.once('click:remove', _ => console.log('removing package', name))
+                packagePanel.append(info)
                 installedPkgsCont.append(packagePanel)
             })
         }
@@ -169,16 +176,18 @@ export default class PackageManagerSettings extends pcui.BaseSettingsPanel {
             }
             
             searchInput.hidden = !doc
-            // installedPkgsCont.hidden = !doc
+            installedPkgsCont.hidden = !doc
             noPackageWarn.hidden = !!doc
 
             console.log('DOC FS CHANGE', doc)
             // subscribe to all new events
-            doc?.once("load", onPackageDocUpdated )
-            // doc?.on("op", onPackageDocUpdated )
-            doc?.subscribe(_ => console.log(_))
+            // doc?.once("load", onPackageDocUpdated )
+            doc?.on("op", onPackageDocUpdated )
+            // doc?.subscribe(_ => console.log(_))
             
             packageDoc = doc
+
+            onPackageDocUpdated()
         })
 
         /*
@@ -196,17 +205,18 @@ export default class PackageManagerSettings extends pcui.BaseSettingsPanel {
 
             if(packageUID === uid) return
 
-            pkgAsset?.once('error:load', _ => console.error('err', _))
-
-            pkgAsset?.once('load', _ => {
+            // pkgAsset?.once('load', _ => {
                 // console.log('ASSEWT LOADED')
                 // There has been a change in the availability of the package.json
-                const doc = uid && editor.call('realtime:connection').get('documents', uid.toString());     
-                editor.emit('package:fs:change', doc)
-                // debugger
-            })
 
-            pkgAsset?.loadAndSubscribe()
+            const doc = uid && editor.call('realtime:connection').get('documents', uid.toString());     
+            doc?.subscribe(err => !err && editor.emit('package:fs:change', doc))
+
+            if(!doc) editor.emit('package:fs:change')
+                // debugger
+            // })
+
+            // pkgAsset?.loadAndSubscribe()
         }
     
         /*
@@ -223,6 +233,7 @@ export default class PackageManagerSettings extends pcui.BaseSettingsPanel {
         editor.assets.on('remove', onFileSystemUpdate)
         editor.assets.on('move', onFileSystemUpdate)
         editor.assets.on('clear', onFileSystemUpdate)
+        noPackageWarn.on('package:created', onFileSystemUpdate)
         onFileSystemUpdate(null)
     }
 }
