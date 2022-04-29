@@ -17,12 +17,12 @@ watch: {
         if (error) console.error('watch build failed:', error)
         else {
             console.log('watch build succeeded:')
-            ws && ws.send('rebuild')
+            // ws && ws.send('rebuild')
         }
     },
 },
 }).then(result => {
     console.log('watching...')
-    // ws && ws.send('Hello! Message From Server!!')
+    ws && ws.send('Hello! Message From Server!!')
 })
 
