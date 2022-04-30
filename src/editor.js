@@ -5,38 +5,47 @@ editor.once('assets:load', progress => {
     const cache = {}
     const connection = editor.call('realtime:connection')
     const getFQN = obs => obs.get('path').map(id => editor.call('assets:get', id).get('name')).join('/') + '/' + obs.get('name')
+    window.cache = cache
+
+    const watchFile = (obs, shouldFetch = true) => {
+        if(obs.get('type') !== 'script') return
+        
+        obs.sync.on('sync', _ => {
+            if(!doc.data) return
+            cache[getFQN(obs)] = doc.data
+            console.log('on sync', obs.get('name'), doc.data)
+        })
+
+        const doc = connection.get('documents', obs.get('id'))
+        doc.on('load', _ => {
+            console.log('new file')
+            cache[getFQN(obs)] = doc.data
+            doc.destroy()
+        })
+        if(shouldFetch){
+            // There is a race condition where locally created files trigger 'assets:add' before the sharedb ha the correct file contents
+            setTimeout(_ => doc.subscribe(), 1000)
+        }
+    }
 
     // Populate the cache and listen for any invalidate if any updates occur
     editor.call('assets:list')
         .filter(obs => obs.get('type') === 'script')
-        .forEach(obs => {
+        .forEach(asset => watchFile(asset, true ))
 
-            const doc = connection.get('documents', obs.get('id'))
-            doc.on('load', _ => {
-                cache[getFQN(obs)] = doc.data
-                doc.destroy()
-            })
-            doc.subscribe()
-        
-            // on file update
-            obs.sync.on('sync', _ => {
-                cache[getFQN(obs)] = doc.data
-                // console.log('on sync', connection.get('documents', obs.get('id')).data)
-            })
-        })
 
-    // detect any changes to fs
-
-    // console.log(cache)
-
-    // get contents doc of an asset by id
-    // editor.call('realtime:connection').get('documents', id)
-
-    // subscribe to changes
-    // doc.on('op', _ => _)
-
-    // const triggerRebuild = _ => _
+    const triggerRebuild = _ => _
   
+    editor.on('assets:add', asset => watchFile(asset, true))
+    editor.on('assets:remove', asset => {
+        delete cache[getFQN(asset)]
+    })
+
+    console.log(cache)
+    /*
+        package.json
+    */
+
     // let packageDoc
     // const onPackageDocUpdated = _ => {
     //     if(!packageDoc?.data) return
@@ -78,27 +87,24 @@ editor.once('assets:load', progress => {
     // /*
     //  *  Called when the file system updates
     //  */
-    
-
     // let packageUID = null // important this is null on first run
     // const onFileSystemUpdate = _ => {
     
-    //     const pkgAsset = findPackageJson(editor)
-            
+    //     const pkgAsset = findPackageJson(editor)            
     //     const uid = pkgAsset?.get('uniqueId')
 
     //     if(packageUID === uid) return
 
-    //     const doc = uid && editor.call('realtime:connection').get('documents', uid.toString());     
+    //     const doc = connection.get('documents', uid.toString());     
     //     doc?.subscribe(err => !err && editor.emit('package:fs:change', doc))
 
     //     if(!doc) editor.emit('package:fs:change')
     // }
   
-    // // Listen for any changes to the event registry
+    // // // Listen for any changes to the event registry
     // editor.on('assets:add', onFileSystemUpdate)
     // editor.on('assets:remove', onFileSystemUpdate)
-    // // editor.on('move', onFileSystemUpdate)
-    // // editor.on('clear', onFileSystemUpdate)
+    // // // editor.on('move', onFileSystemUpdate)
+    // // // editor.on('clear', onFileSystemUpdate)
     // onFileSystemUpdate(null)
 })
