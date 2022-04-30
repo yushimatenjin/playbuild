@@ -9,6 +9,19 @@ editor.assets.on('load:progress', progress => {
   
   // console.log('ATTACHING PACKAGE MANAGER')
   const panel = new PackageManagerSettings()
+
+  editor.on('attributes:beforeClear', () => {
+    panel.unlink();
+    if (panel.parent) {
+        panel.parent.remove(panel);
+    }
+  });
+
+    editor.on('attributes:inspect[editorSettings]', () => {
+        const root = editor.call('attributes.rootPanel');
+        if (!panel.parent) root.append(panel);
+    });
+    
   // panel.on('package:selected', ({ name, version }) => {
   
   //   // console.log('selected package is', name);

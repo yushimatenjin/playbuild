@@ -1,6 +1,6 @@
 import NoPackageJson from './no-package';
 import * as DiffMatchPatch from 'diff-match-patch-js-browser-and-nodejs/diff_match_patch.js';
-import { diff2Op } from './utils';
+import { diff2Op, findPackageJson } from './utils';
 import PackagePanel from './package-panel';
 
 const MAX_RESULTS = 5
@@ -56,18 +56,6 @@ export default class PackageManagerSettings extends pcui.BaseSettingsPanel {
 
         this.append(noPackageWarn)
         installedPkgsCont.style.margin = '3px 10px'
-
-        editor.on('attributes:beforeClear', () => {
-            this.unlink();
-            if (this.parent) {
-                this.parent.remove(this);
-            }
-        });
-
-        editor.on('attributes:inspect[editorSettings]', () => {
-            const root = editor.call('attributes.rootPanel');
-            if (!this.parent) root.append(this);
-        });
 
         const results = Array.from(new Array(MAX_RESULTS)).map(_ => {
             const info = new pcui.InfoBox({
@@ -198,10 +186,7 @@ export default class PackageManagerSettings extends pcui.BaseSettingsPanel {
         let packageUID = null // important this is null on first run
         const onFileSystemUpdate = _ => {
         
-            const pkgAsset = editor.assets.findOne(asset =>
-                asset.get('type') === 'json' &&
-                asset.get('name') === 'package.json' &&
-                asset.get('path').length === 0 )
+            const pkgAsset = findPackageJson(editor)
                 
             const uid = pkgAsset?.get('uniqueId')
 
