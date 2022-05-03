@@ -1,21 +1,59 @@
 import { diff2Op, findAsset, getBuildDir, getBuildFile, isBuildDir, isBuildFile, isPkgJson, resolvePath } from "./utils"
 import * as DiffMatchPatch from 'diff-match-patch-js-browser-and-nodejs/diff_match_patch.js';
-var path = require('path-browserify')
-
-
 
 editor.once('assets:load', async progress => {
 
     const dmp = new DiffMatchPatch.diff_match_patch()
-
-    //USE THIS TO GET ASSET CONtENtS
-    //'assets:contents:get'
-
-    const cache = {}
     const connection = editor.call('realtime:connection')
-    window.cache = cache
-
     const triggerRebuild = cache => window.postMessage({ message:'compile', data: cache })
+    const cache = {}
+
+    const updateCache = ({ key, value }) => {
+        cache[key] = value
+        // triggerRebuild(cache)
+    }
+
+    const watchFile = (asset, onUpdate) => {
+        return new Promise((resolve, reject ) => {
+            if(asset.get('type') !== 'script' || isBuildFile(asset, editor)) return
+            
+            const key = resolvePath(asset)
+            const name = asset.get('name')
+            const uid = asset.get('id')
+
+            console.log('Watching asset ', name, uid)
+            const doc = connection.get('documents', uid)
+            
+            asset.sync.on('sync', _ => {
+                if(!doc.data) return
+                onUpdate({ key, value: doc.data })
+            })
+
+            doc.on('error', error => reject(error))
+
+            if(doc.data) resolve(doc.data)
+            else {
+
+                doc.on('load', _ => {
+                    doc.destroy()
+                    resolve({ key, value: doc.data })
+                })
+
+                // There is a race condition where locally created files trigger 'assets:add' before the sharedb ha the correct file contents
+                setTimeout(_ => doc.subscribe(), 1000)
+            }
+        })
+    }
+
+    
+    
+    // Populate the cache and listen for any invalidate if any updates occur
+    const initialFiles = await Promise.all(editor.call('assets:list')
+        .filter(obs => obs.get('type') === 'script' && !isBuildFile(obs, editor))
+        .map(asset => watchFile(asset, updateCache)))
+
+    // Update the cache with each file
+    initialFiles.forEach(({ key, value }) => cache[key] = value)
 
     window.addEventListener('message', async ({ data }) => {
         switch(data.message){
@@ -79,39 +117,7 @@ editor.once('assets:load', async progress => {
         }
     })
 
-    const watchFile = obs => {
-        console.log('attampting to watching ', obs.get('name'))
-        return new Promise((resolve) => {
-            if(obs.get('type') !== 'script' || isBuildFile(obs, editor)) return
-            
-            
-
-            obs.sync.on('sync', _ => {
-                if(!doc.data) return
-                cache[resolvePath(obs)] = doc.data
-                console.log('on sync', obs.get('name'), doc.data)
-                triggerRebuild(cache)
-            })
-
-            const doc = connection.get('documents', obs.get('id'))
-            doc.on('load', _ => {
-                // console.log('new file')
-                cache[resolvePath(obs)] = doc.data
-                doc.destroy()
-                resolve(doc.data)
-            })
-
-            // if(shouldFetch){
-                // There is a race condition where locally created files trigger 'assets:add' before the sharedb ha the correct file contents
-                setTimeout(_ => doc.subscribe(), 2000)
-            // }
-        })
-    }
-
-    // Populate the cache and listen for any invalidate if any updates occur
-    editor.call('assets:list')
-        .filter(obs => obs.get('type') === 'script' && obs.get('name') !== 'build.js')
-        .map(watchFile)
+    
 
     triggerRebuild(cache)
   
