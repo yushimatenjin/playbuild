@@ -1,40 +1,69 @@
 import { findPackageJson } from "./utils"
+var path = require('path-browserify')
 
-editor.once('assets:load', progress => {
+editor.once('assets:load', async progress => {
+
+    //USE THIS TO GET ASSET CONtENtS
+    //'assets:contents:get'
 
     const cache = {}
     const connection = editor.call('realtime:connection')
-    const getFQN = obs => obs.get('path').map(id => editor.call('assets:get', id).get('name')).join('/') + '/' + obs.get('name')
+    const getFQN = obs => path.resolve('/' + obs.get('path').map(id => editor.call('assets:get', id).get('name')).join('/') + '/' + obs.get('name'))
     window.cache = cache
 
-    const watchFile = (obs, shouldFetch = true) => {
-        if(obs.get('type') !== 'script') return
-        
-        obs.sync.on('sync', _ => {
-            if(!doc.data) return
-            cache[getFQN(obs)] = doc.data
-            console.log('on sync', obs.get('name'), doc.data)
-        })
+    const isBuildFile = asset => asset.get('type') === 'script' &&
+        asset.get('name') === 'index.build.js' &&
+        asset.get('path').length === 1
+        // editor.call('assets:get', asset.get('path')[0]).get('name') === '.build'
 
-        const doc = connection.get('documents', obs.get('id'))
-        doc.on('load', _ => {
-            console.log('new file')
-            cache[getFQN(obs)] = doc.data
-            doc.destroy()
-        })
-        if(shouldFetch){
-            // There is a race condition where locally created files trigger 'assets:add' before the sharedb ha the correct file contents
-            setTimeout(_ => doc.subscribe(), 1000)
+
+    const triggerRebuild = cache => window.postMessage({ message:'compile', data: cache })
+
+    window.addEventListener('message', ({ data }) => {
+        switch(data.message){
+            case 'onCompiled' :
+                console.log('onCompiled', data.data)
+                break;
+            case 'onError' :
+                console.log('onError', data.data)
+                break;
+            default : break
         }
+    })
+
+    const watchFile = obs => {
+        return new Promise((resolve, reject) => {
+            if(obs.get('type') !== 'script' ||) reject()
+            
+            obs.sync.on('sync', _ => {
+                if(!doc.data) return
+                cache[getFQN(obs)] = doc.data
+                console.log('on sync', obs.get('name'), doc.data)
+                triggerRebuild(cache)
+            })
+
+            const doc = connection.get('documents', obs.get('id'))
+            doc.on('load', _ => {
+                console.log('new file')
+                cache[getFQN(obs)] = doc.data
+                doc.destroy()
+                resolve(doc.data)
+            })
+
+            // if(shouldFetch){
+                // There is a race condition where locally created files trigger 'assets:add' before the sharedb ha the correct file contents
+                editor.call('assets:contents:get', obs, (_, d) => console.log('from narive', _, d))
+                setTimeout(_ => doc.subscribe(), 1000)
+            // }
+        })
     }
 
     // Populate the cache and listen for any invalidate if any updates occur
-    editor.call('assets:list')
-        .filter(obs => obs.get('type') === 'script')
-        .forEach(asset => watchFile(asset, true ))
+    await Promise.all(editor.call('assets:list')
+        .filter(obs => obs.get('type') === 'script' && obs.get('name') !== 'build.js')
+        .map(watchFile))
 
-
-    const triggerRebuild = _ => _
+    triggerRebuild(cache)
   
     editor.on('assets:add', asset => watchFile(asset, true))
     editor.on('assets:remove', asset => {

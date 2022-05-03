@@ -8,7 +8,6 @@ chrome.runtime.onInstalled.addListener(() => {
     websocket.onmessage = async function(e) {
          if(e.data === 'rebuild') {
             let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-             console.log(tab)
              await chrome.tabs.reload(tab.id);
              await chrome.runtime.reload()
          }
