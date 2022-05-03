@@ -1,6 +1,6 @@
 import NoPackageJson from './no-package';
 import * as DiffMatchPatch from 'diff-match-patch-js-browser-and-nodejs/diff_match_patch.js';
-import { diff2Op, findPackageJson } from './utils';
+import { diff2Op, findAsset } from './utils';
 import PackagePanel from './package-panel';
 
 const MAX_RESULTS = 5
@@ -186,7 +186,7 @@ export default class PackageManagerSettings extends pcui.BaseSettingsPanel {
         let packageUID = null // important this is null on first run
         const onFileSystemUpdate = _ => {
         
-            const pkgAsset = findPackageJson(editor)
+            const pkgAsset = findAsset(editor, isPkgJson)
                 
             const uid = pkgAsset?.get('uniqueId')
 

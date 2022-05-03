@@ -12,7 +12,6 @@ let esBuildInitialised = false
 const compileScripts = async files => {
     
     
-    console.log('compile scripts', files)
     // console.log(files, chrome.runtime.getURL('./esbuild.wasm'))
     !esBuildInitialised && await esbuild.initialize({
         worker: false,
@@ -20,27 +19,22 @@ const compileScripts = async files => {
     })
     
     esBuildInitialised = true
-    // esbuild.transform(code, options).then(result => { ... })
-    // esbuild.build(options).then(result => { ... })
-    // const index = await esbuild.transform(constructIndex(files))
-    // console.log('index', index)
 
     const plugin = cachePlugin({
         '/index.js' : constructIndex(files),
         ...files
     })
 
+    console.time('build')
     const { outputFiles, errors } = await esbuild.build({
         entryPoints: ['/index.js'],
         plugins: [plugin],
         bundle: true,
         write: false
     })
+    console.timeEnd('build')
 
-    // console.log(outputFiles[0].text)
-    const source = outputFiles[0].text
-    console.log('errors', errors)
-    if(!errors.length) window.postMessage({ message: 'onCompiled', data: source })
+    if(!errors.length) window.postMessage({ message: 'onCompiled', data: outputFiles[0].text })
     else window.postMessage({ message: 'onError', data: errors })
 
 }

@@ -1,59 +1,108 @@
-import { findPackageJson } from "./utils"
+import { diff2Op, findAsset, getBuildDir, getBuildFile, isBuildDir, isBuildFile, isPkgJson, resolvePath } from "./utils"
+import * as DiffMatchPatch from 'diff-match-patch-js-browser-and-nodejs/diff_match_patch.js';
 var path = require('path-browserify')
 
+
+
 editor.once('assets:load', async progress => {
+
+    const dmp = new DiffMatchPatch.diff_match_patch()
 
     //USE THIS TO GET ASSET CONtENtS
     //'assets:contents:get'
 
     const cache = {}
     const connection = editor.call('realtime:connection')
-    const getFQN = obs => path.resolve('/' + obs.get('path').map(id => editor.call('assets:get', id).get('name')).join('/') + '/' + obs.get('name'))
     window.cache = cache
-
-    const isBuildFile = asset => asset.get('type') === 'script' &&
-        asset.get('name') === 'index.build.js' &&
-        asset.get('path').length === 1
-        // editor.call('assets:get', asset.get('path')[0]).get('name') === '.build'
-
 
     const triggerRebuild = cache => window.postMessage({ message:'compile', data: cache })
 
-    window.addEventListener('message', ({ data }) => {
+    window.addEventListener('message', async ({ data }) => {
         switch(data.message){
             case 'onCompiled' :
-                console.log('onCompiled', data.data)
+                
+                console.log('onCompiled ')
+                const buildFile = await getBuildFile(editor, data.data)
+                const doc = connection.get('documents', buildFile.get('id'))
+
+                // console.log('doc', doc.data)
+
+                // buildFile.sync.on('sync', _ => {
+
+                // })
+                const doSave = _ => {
+                    console.log('do save', buildFile.get('id'))
+                    const uid = parseInt(buildFile.get('id'), 10)
+                    editor.call('realtime:send', 'doc:save:', uid);
+                }
+
+                const submitOp = (doc, data) => {
+                    var diff = dmp.diff_main(doc.data, data);      
+                    console.log('submitting', doc.data, data)
+                    // dmp.diff_cleanupSemantic(diff);
+                    doc.once('op', _ => {
+                        if (doc.hasPending()) {
+                            // wait for pending data to be sent and
+                            // acknowledged by the server before saving
+                            doc.once('nothing pending',  doSave);
+                        } else {
+                            doSave();
+                        }
+                    })
+
+                    doc.submitOp(diff2Op(diff))
+                }
+
+
+
+                if(doc.data){
+                    submitOp(doc, data.data)
+                    return
+                }
+
+                doc.once('load', _ => {
+                    // submitOp(doc, data.data)
+                    console.log('loaded')
+                    doc.destroy()
+                })
+                // There is a race condition where locally created files trigger 'assets:add' before the sharedb ha the correct file contents
+                setTimeout(_ => {
+                    console.log('calling subscribe')
+                    doc.subscribe()
+                }, 2000)
+
                 break;
             case 'onError' :
-                console.log('onError', data.data)
+                console.log('onError  ', data.data)
                 break;
             default : break
         }
     })
 
     const watchFile = obs => {
-        return new Promise((resolve, reject) => {
-            if(obs.get('type') !== 'script' ||) reject()
+        return new Promise((resolve) => {
+            if(obs.get('type') !== 'script' || isBuildFile(obs, editor)) return
             
+            console.log('watching ', obs.get('name'))
+
             obs.sync.on('sync', _ => {
                 if(!doc.data) return
-                cache[getFQN(obs)] = doc.data
+                cache[resolvePath(obs)] = doc.data
                 console.log('on sync', obs.get('name'), doc.data)
                 triggerRebuild(cache)
             })
 
             const doc = connection.get('documents', obs.get('id'))
             doc.on('load', _ => {
-                console.log('new file')
-                cache[getFQN(obs)] = doc.data
+                // console.log('new file')
+                cache[resolvePath(obs)] = doc.data
                 doc.destroy()
                 resolve(doc.data)
             })
 
             // if(shouldFetch){
                 // There is a race condition where locally created files trigger 'assets:add' before the sharedb ha the correct file contents
-                editor.call('assets:contents:get', obs, (_, d) => console.log('from narive', _, d))
-                setTimeout(_ => doc.subscribe(), 1000)
+                setTimeout(_ => doc.subscribe(), 2000)
             // }
         })
     }
@@ -65,12 +114,11 @@ editor.once('assets:load', async progress => {
 
     triggerRebuild(cache)
   
-    editor.on('assets:add', asset => watchFile(asset, true))
+    editor.on('assets:add', watchFile)
     editor.on('assets:remove', asset => {
-        delete cache[getFQN(asset)]
+        delete cache[resolvePath(asset)]
     })
-
-    console.log(cache)
+    
     /*
         package.json
     */
@@ -119,7 +167,7 @@ editor.once('assets:load', async progress => {
     // let packageUID = null // important this is null on first run
     // const onFileSystemUpdate = _ => {
     
-    //     const pkgAsset = findPackageJson(editor)            
+    //     const pkgAsset = findAsset(editor, isPkgJson)
     //     const uid = pkgAsset?.get('uniqueId')
 
     //     if(packageUID === uid) return
