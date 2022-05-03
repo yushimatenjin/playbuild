@@ -38,7 +38,7 @@ editor.once('assets:load', async progress => {
 
                 const submitOp = (doc, data) => {
                     var diff = dmp.diff_main(doc.data, data);      
-                    console.log('submitting', doc.data, data)
+                    console.log('submitting', diff)
                     // dmp.diff_cleanupSemantic(diff);
                     doc.once('op', _ => {
                         if (doc.hasPending()) {
@@ -80,10 +80,11 @@ editor.once('assets:load', async progress => {
     })
 
     const watchFile = obs => {
+        console.log('attampting to watching ', obs.get('name'))
         return new Promise((resolve) => {
             if(obs.get('type') !== 'script' || isBuildFile(obs, editor)) return
             
-            console.log('watching ', obs.get('name'))
+            
 
             obs.sync.on('sync', _ => {
                 if(!doc.data) return
@@ -108,13 +109,16 @@ editor.once('assets:load', async progress => {
     }
 
     // Populate the cache and listen for any invalidate if any updates occur
-    await Promise.all(editor.call('assets:list')
+    editor.call('assets:list')
         .filter(obs => obs.get('type') === 'script' && obs.get('name') !== 'build.js')
-        .map(watchFile))
+        .map(watchFile)
 
     triggerRebuild(cache)
   
-    editor.on('assets:add', watchFile)
+    editor.on('assets:add', asset => {
+        console.log('herllo')
+        watchFile(asset)
+    })
     editor.on('assets:remove', asset => {
         delete cache[resolvePath(asset)]
     })
