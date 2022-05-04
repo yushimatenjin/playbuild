@@ -28,6 +28,7 @@ const compileScripts = async files => {
         entryPoints: ['/index.js'],
         plugins: [plugin],
         bundle: true,
+        resolveExtensions: ['.ts', '.js'],
         write: false
     })
     console.timeEnd('build')

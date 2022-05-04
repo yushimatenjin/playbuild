@@ -1,5 +1,4 @@
 import path from 'path-browserify';
-import { resolve } from 'path-browserify';
 
 export const diff2Op = diffs => {
     const ops = []
@@ -23,7 +22,7 @@ export const diff2Op = diffs => {
   }
 
 const PACKAGE_JSON_NAME = 'package.json'
-const BUILD_DIR_NAME = '.build'
+const BUILD_DIR_NAME = '.pcpm'
 const BUILD_FILE_NAME = 'built.js'
 const BANNER = '/* BUILT WITH PCPM */'
 
@@ -63,7 +62,6 @@ export const getBuildDir = editor => {
       source: true,
       preload: false,
       data: null,
-      // parent: (args.parent !== undefined) ? args.parent : editor.call('assets:selected:folder'),
       scope: {
           type: 'project',
           id: config.project.id
@@ -106,7 +104,7 @@ export const getBuildFile = (editor, content = BANNER) => {
       parent: buildDir, 
       noSelect: true,
       callback: _ => resolve(findAsset(editor, isBuildFile))
-    })
+    }, true )
 
     // editor.call('assets:create:script', {
     //   filename: BUILD_FILE_NAME,
@@ -119,7 +117,8 @@ export const getBuildFile = (editor, content = BANNER) => {
   })
 }
 
-export const resolvePath = asset => {
-  const relativePath = '/' + asset.get('path').map(id => editor.call('assets:get', id).get('name')).join('/') + '/' + asset.get('name')
-  return path.resolve(relativePath)
+export const resolvePath = (asset, altPath) => {
+  const relativePath = (altPath ?? asset.get('path'))
+    .map(id => editor.call('assets:get', id).get('name')).join('/')
+  return path.resolve('/' + relativePath + '/' + asset.get('file.filename'))
 }
