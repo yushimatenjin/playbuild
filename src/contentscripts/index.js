@@ -11,8 +11,6 @@ const constructIndex = files => {
 let esBuildInitialised = false
 const compileScripts = async files => {
     
-    
-    // console.log(files, chrome.runtime.getURL('./esbuild.wasm'))
     !esBuildInitialised && await esbuild.initialize({
         worker: false,
         wasmURL: chrome.runtime.getURL('./esbuild.wasm')
@@ -40,7 +38,6 @@ const compileScripts = async files => {
 }
 
 window.onmessage = ({ data }) => {
-    // console.log(message)
     switch(data?.message){
         case 'compile' :
             const files = data.data

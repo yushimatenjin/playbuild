@@ -3,15 +3,21 @@ import * as DiffMatchPatch from 'diff-match-patch-js-browser-and-nodejs/diff_mat
 
 editor.once('assets:load', async progress => {
 
+    const cache = {}
     const dmp = new DiffMatchPatch.diff_match_patch()
     const connection = editor.call('realtime:connection')
-    const triggerRebuild = cache => window.postMessage({ message:'compile', data: cache })
-    const cache = {}
 
-    const updateCache = ({ key, value }) => {
-        cache[key] = value
-        // triggerRebuild(cache)
+    const updateCache = ({ key, value }) => cache[key] = value
+    const triggerRebuild = cache => window.postMessage({ message:'compile', data: cache })
+    const incrementalBuild = change => {
+        console.log('incremental build', change)
+        updateCache(change)
+        triggerRebuild(cache)
     }
+
+    /*
+     *  Resolves an assets contents and watches it for updates
+     */
 
     const watchFile = (asset, onUpdate) => {
         return new Promise((resolve, reject ) => {
@@ -24,52 +30,66 @@ editor.once('assets:load', async progress => {
             console.log('Watching asset ', name, uid)
             const doc = connection.get('documents', uid)
             
-            asset.sync.on('sync', _ => {
-                if(!doc.data) return
-                onUpdate({ key, value: doc.data })
-            })
+            // doc.on('op', op => console.log("DOC HSA OP", _))
 
+            asset.sync.on('sync', _ => {
+
+                // editor.call('assets:contents:get', asset, function (err, content){
+                const { data } = editor.call('documents:get', asset.get('id') );//connection.get('documents', uid)
+                // console.log('update', content === dd.data)
+                onUpdate({ key, value: data })
+                
+                // })
+                // if(!doc.data) return
+            })
             doc.on('error', error => reject(error))
 
-            if(doc.data) resolve(doc.data)
+            if(doc.data) resolve({ key, value: doc.data })
             else {
 
-                doc.on('load', _ => {
-                    doc.destroy()
+                /*
+                 * Currently when an asset:add is called the data is not on sharedb
+                 */
+
+                const assetDoc = connection.get('assets', uid);
+                assetDoc.once('op', _ => {
+                    // doc.destroy()
+                    console.log("HAS OP")
                     resolve({ key, value: doc.data })
                 })
 
-                // There is a race condition where locally created files trigger 'assets:add' before the sharedb ha the correct file contents
-                setTimeout(_ => doc.subscribe(), 1000)
+                // There is a race condition where locally created files trigger 'assets:add' before the sharedb updates
+                // setTimeout(_ => doc.subscribe(), 1000)
             }
         })
     }
-
     
-    
-    // Populate the cache and listen for any invalidate if any updates occur
+    // Load the initial available files and listen for changes
     const initialFiles = await Promise.all(editor.call('assets:list')
         .filter(obs => obs.get('type') === 'script' && !isBuildFile(obs, editor))
-        .map(asset => watchFile(asset, updateCache)))
+        .map(asset => watchFile(asset, incrementalBuild)))
 
-    // Update the cache with each file
+    // Update the cache with the initial files
     initialFiles.forEach(({ key, value }) => cache[key] = value)
+
+    // initialize the compiler
+    window.postMessage({ message: 'pcpm:init', data: cache })
+
+
+    /*
+     *  Listen for compiler events
+     */
 
     window.addEventListener('message', async ({ data }) => {
         switch(data.message){
             case 'onCompiled' :
                 
-                console.log('onCompiled ')
+                console.log('onCompiled')
                 const buildFile = await getBuildFile(editor, data.data)
                 const doc = connection.get('documents', buildFile.get('id'))
 
-                // console.log('doc', doc.data)
-
-                // buildFile.sync.on('sync', _ => {
-
-                // })
                 const doSave = _ => {
-                    console.log('do save', buildFile.get('id'))
+                    console.log('saving', buildFile.get('id'))
                     const uid = parseInt(buildFile.get('id'), 10)
                     editor.call('realtime:send', 'doc:save:', uid);
                 }
@@ -91,23 +111,20 @@ editor.once('assets:load', async progress => {
                     doc.submitOp(diff2Op(diff))
                 }
 
-
-
                 if(doc.data){
                     submitOp(doc, data.data)
-                    return
+                    // return
                 }
 
                 doc.once('load', _ => {
                     // submitOp(doc, data.data)
-                    console.log('loaded')
+                    console.log('loaded', name)
+                    submitOp(doc, data.data);
                     doc.destroy()
                 })
-                // There is a race condition where locally created files trigger 'assets:add' before the sharedb ha the correct file contents
-                setTimeout(_ => {
-                    console.log('calling subscribe')
+
+                // // There is a race condition where locally created files trigger 'assets:add' before the sharedb ha the correct file contents
                     doc.subscribe()
-                }, 2000)
 
                 break;
             case 'onError' :
@@ -117,16 +134,24 @@ editor.once('assets:load', async progress => {
         }
     })
 
-    
 
     triggerRebuild(cache)
-  
-    editor.on('assets:add', asset => {
-        console.log('herllo')
-        watchFile(asset)
+
+    // When an asset is added watch for changes and trigger an immediate incremental build
+    editor.on('assets:add', async asset => {
+
+        // Source scripts included in the build must be excluded from PC launcher
+        const doc = connection.get('assets', asset.get('id'))
+        doc.submitOp({ p: ['exclude'], oi:true })
+
+        watchFile(asset, incrementalBuild)
+        
     })
+
     editor.on('assets:remove', asset => {
+        // Trigger some rebuild when files has been removed
         delete cache[resolvePath(asset)]
+        incrementalBuild(cache)
     })
     
     /*
