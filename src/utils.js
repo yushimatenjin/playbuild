@@ -97,7 +97,7 @@ export const getBuildFile = (editor, content = BANNER) => {
 
     const buildDir = await getBuildDir(editor)
 
-    const selectedAsset = editor.call('assets:selected')
+    const selectedAsset = editor.call('assets:selected')?.[0]
 
     editor.call('assets:create:script', {
       filename: BUILD_FILE_NAME,
@@ -109,7 +109,7 @@ export const getBuildFile = (editor, content = BANNER) => {
 
         setTimeout(function () {
           editor.call('tabs:temp:lock');
-          selectedAsset ? editor.call('files:select', selectedAsset) : editor.call('files:deselectAll')
+          selectedAsset ? editor.call('files:select', selectedAsset.get('id')) : editor.call('files:deselectAll')
           editor.call('tabs:temp:unlock');
         }, 20 )
 
