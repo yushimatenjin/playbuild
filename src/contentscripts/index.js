@@ -34,6 +34,7 @@ const build = async files => {
         plugins: [plugin],
         bundle: true,
         platform: 'browser',
+        sourcemap: 'inline',
         // resolveExtensions: ['.ts', '.js'],
         write: false,
         incremental: true
