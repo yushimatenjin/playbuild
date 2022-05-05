@@ -1,26 +1,31 @@
-import PackageManagerSettings from './package-manager';
+// import PackageManagerSettings from './package-manager';
 
 
-editor.assets.on('load:progress', progress => {
+editor.on('assets:scripts:add', asset => {
+  asset.set('exclude', true)
+  asset.set('preload', false)
+})
+
+// editor.assets.on('load:progress', progress => {
   
-  // load:progress fires periodically, but we only care when fully loaded
-  if(progress < 1) return
-  editor.assets.unbind('load:progress')
+//   // load:progress fires periodically, but we only care when fully loaded
+//   if(progress < 1) return
+//   editor.assets.unbind('load:progress')
   
   // console.log('ATTACHING PACKAGE MANAGER')
-  const panel = new PackageManagerSettings()
+  // const panel = new PackageManagerSettings()
 
-  editor.on('attributes:beforeClear', () => {
-    panel.unlink();
-    if (panel.parent) {
-        panel.parent.remove(panel);
-    }
-  });
+  // editor.on('attributes:beforeClear', () => {
+  //   panel.unlink();
+  //   if (panel.parent) {
+  //       panel.parent.remove(panel);
+  //   }
+  // });
 
-    editor.on('attributes:inspect[editorSettings]', () => {
-        const root = editor.call('attributes.rootPanel');
-        if (!panel.parent) root.append(panel);
-    });
+  // editor.on('attributes:inspect[editorSettings]', () => {
+  //     const root = editor.call('attributes.rootPanel');
+  //     if (!panel.parent) root.append(panel);
+  // });
     
   // panel.on('package:selected', ({ name, version }) => {
   
@@ -36,7 +41,7 @@ editor.assets.on('load:progress', progress => {
   
   // })
 
-})
+// })
       
       // const searchresultsCont = panel._attributesInspector.getField('results')
       // const packageJsonInput = panel._attributesInspector.getField('packageJson')

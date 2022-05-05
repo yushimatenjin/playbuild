@@ -12,7 +12,6 @@ editor.once('assets:load', async progress => {
     const updateCache = ({ key, value }) => value ? cache[key] = value : delete cache[key]
 
     const triggerBuild = debounce(cache => {
-        console.log('build', cache)
         window.postMessage({ message:'pcpm:build', data: cache })
     }, 200)
 
@@ -49,11 +48,13 @@ editor.once('assets:load', async progress => {
             // If the name changes remove the old key from cache
             asset.on('name:set', (name, nameOld) => {
                 const key = path.join(path.dirname(resolvePath(asset)), nameOld)
+                console.log('name set. removing', key)
                 updateCache({ key, value: null })
             })
-
+            
             asset.on('path:set', (path, oldPath) => {
                 const key = resolvePath(asset, oldPath)
+                console.log('path set. removing', key)
                 updateCache({ key, value: null })
             })
 

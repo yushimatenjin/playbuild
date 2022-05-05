@@ -97,14 +97,25 @@ export const getBuildFile = (editor, content = BANNER) => {
 
     const buildDir = await getBuildDir(editor)
 
+    const selectedAsset = editor.call('assets:selected')
+
     editor.call('assets:create:script', {
       filename: BUILD_FILE_NAME,
       boilerplate: false,
       content,
       parent: buildDir, 
-      noSelect: true,
-      callback: _ => resolve(findAsset(editor, isBuildFile))
-    }, true )
+      noSelect: true, // This is ignored
+      callback: _ => {
+
+        setTimeout(function () {
+          editor.call('tabs:temp:lock');
+          selectedAsset ? editor.call('files:select', selectedAsset) : editor.call('files:deselectAll')
+          editor.call('tabs:temp:unlock');
+        }, 20 )
+
+        resolve(findAsset(editor, isBuildFile))
+      }
+    })
 
     // editor.call('assets:create:script', {
     //   filename: BUILD_FILE_NAME,

@@ -1,11 +1,15 @@
 import * as esbuild from 'esbuild-wasm'
 import cachePlugin from './cache-plugin'
 
-const constructIndex = files => {
+const withIndex = files => {
     const imports = Object.keys(files ?? []).map(path =>{
         return `import "${path}";`
     })
-    return imports.join('');
+
+    return {
+        '/index.js': imports.join(''),
+        ...files
+    }
 }
 
 let esBuildInitialised = false
@@ -20,12 +24,11 @@ const build = async files => {
         esBuildInitialised = true
     }
 
-    const { plugin, updateFiles } = cachePlugin({
-        '/index.js' : constructIndex(files),
-        ...files
-    })
+    const { plugin, updateFiles } = cachePlugin(withIndex(files))
 
-    console.time('build')
+    updateFileCache = files => updateFiles(withIndex(files))
+
+    console.time('Full Build')
     const { outputFiles, errors, rebuild } = await esbuild.build({
         entryPoints: ['/index.js'],
         plugins: [plugin],
@@ -35,9 +38,9 @@ const build = async files => {
         write: false,
         incremental: true
     })
-    console.timeEnd('build')
+    console.timeEnd('Full Build')
 
-    // incrementalBuild = rebuild
+    incrementalBuild = rebuild
 
     if(!errors.length) window.postMessage({ message: 'onCompiled', data: outputFiles[0].text })
     else window.postMessage({ message: 'onError', data: errors })
@@ -46,20 +49,22 @@ const build = async files => {
 
 // Performs an incremental build
 const rebuild = async files => {
-    // if(!incrementalBuild) build(files)
-    // else{
-    //     console.time('incremental build')
-    //     const { outputFiles, errors } = await incrementalBuild()
-    //     console.timeEnd('incremental build')
-    //     if(!errors.length) window.postMessage({ message: 'onCompiled', data: outputFiles[0].text })
-    //     else window.postMessage({ message: 'onError', data: errors })
-    // }
+    if(!incrementalBuild) build(files)
+    else{
+        updateFileCache(files)
+        console.time('Incremental Build')
+        const { outputFiles, errors } = await incrementalBuild()
+        console.timeEnd('Incremental Build')
+
+        if(!errors.length) window.postMessage({ message: 'onCompiled', data: outputFiles[0].text })
+        else window.postMessage({ message: 'onError', data: errors })
+    }
 }
 
 window.onmessage = ({ data }) => {
     switch(data?.message){
         case 'pcpm:build' :
-            build(data.data)
+            rebuild(data.data)
             break
         // case 'pcpm:rebuild' :
         //     rebuild(data.data)

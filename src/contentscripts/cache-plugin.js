@@ -13,10 +13,11 @@ export default function cachePlugin (files) {
             setup(build) {
 
                 build.onResolve({ filter: /.*/ }, async ({ path, resolveDir }) => {
-
+                    
                     const absPath = resolve(resolveDir, path)
-                    const resolvedPath = resolveModule(absPath, files)
-                    if(!resolvedPath){
+                    // console.log('absPath', absPath)
+                    const resolvedPath = resolveModule(absPath, vfs)
+                    if(resolvedPath === undefined){
                         return { errors: [new Error(`Module '${resolve(resolveDir, path)}' not found.`)]}
                     }
                     return {
@@ -26,7 +27,7 @@ export default function cachePlugin (files) {
             
                 build.onLoad({ filter: /.*/ }, async (args) => {
                     return {
-                        contents: files[args.path],
+                        contents: vfs[args.path],
                         loader: 'js',
                     }
                 })
