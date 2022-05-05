@@ -9,14 +9,16 @@ const constructIndex = files => {
 }
 
 let esBuildInitialised = false
-const compileScripts = async files => {
-    
-    !esBuildInitialised && await esbuild.initialize({
-        worker: false,
-        wasmURL: chrome.runtime.getURL('./esbuild.wasm')
-    })
-    
-    esBuildInitialised = true
+let incrementalBuild
+const build = async files => {
+
+    if(!esBuildInitialised){
+        await esbuild.initialize({
+            worker: false,
+            wasmURL: chrome.runtime.getURL('./esbuild.wasm')
+        })
+        esBuildInitialised = true
+    }
 
     const plugin = cachePlugin({
         '/index.js' : constructIndex(files),
@@ -28,22 +30,39 @@ const compileScripts = async files => {
         entryPoints: ['/index.js'],
         plugins: [plugin],
         bundle: true,
-        resolveExtensions: ['.ts', '.js'],
-        write: false
+        // resolveExtensions: ['.ts', '.js'],
+        write: false,
+        // incremental: true
     })
     console.timeEnd('build')
 
+    // incrementalBuild = rebuild
+
     if(!errors.length) window.postMessage({ message: 'onCompiled', data: outputFiles[0].text })
     else window.postMessage({ message: 'onError', data: errors })
+    
+}
 
+// Performs an incremental build
+const rebuild = async files => {
+    // if(!incrementalBuild) build(files)
+    // else{
+    //     console.time('incremental build')
+    //     const { outputFiles, errors } = await incrementalBuild()
+    //     console.timeEnd('incremental build')
+    //     if(!errors.length) window.postMessage({ message: 'onCompiled', data: outputFiles[0].text })
+    //     else window.postMessage({ message: 'onError', data: errors })
+    // }
 }
 
 window.onmessage = ({ data }) => {
     switch(data?.message){
-        case 'compile' :
-            const files = data.data
-            compileScripts(files)
+        case 'pcpm:build' :
+            build(data.data)
             break
+        // case 'pcpm:rebuild' :
+        //     rebuild(data.data)
+        //     break
         default: break
     }
 }

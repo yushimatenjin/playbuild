@@ -1,4 +1,4 @@
-var path = require('path-browserify')
+var { resolve } = require('path-browserify')
 
 export default function cachePlugin (files) {
    
@@ -8,10 +8,15 @@ export default function cachePlugin (files) {
 
             build.onResolve({ filter: /.*/ }, async ({ path, resolveDir }) => {
                 // console.log('resolve', path.resolve(args.resolveDir, args.path ))
-                const result = await build.resolve(path, { resolveDir })
-                console.log(result)
+                try {
+                    const result = await build.resolve(path, { resolveDir })
+                }catch(e){
+                    console.log(err0r)
+                }
+
+                // console.log(result)
                 return {
-                    path: path.resolve(resolveDir, path )
+                    path: resolve(resolveDir, path )
                 }
             })
         

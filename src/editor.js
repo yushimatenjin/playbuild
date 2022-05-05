@@ -11,14 +11,14 @@ editor.once('assets:load', async progress => {
 
     const updateCache = ({ key, value }) => value ? cache[key] = value : delete cache[key]
 
-    const triggerRebuild = debounce(cache => {
-        console.log('incremental build', cache)
-        window.postMessage({ message:'compile', data: cache })
+    const triggerBuild = debounce(cache => {
+        console.log('build', cache)
+        window.postMessage({ message:'pcpm:build', data: cache })
     }, 200)
 
     const incrementalBuild = change => {
         updateCache(change)
-        triggerRebuild(cache)
+        triggerBuild(cache)
     }
 
     const isScript = asset => asset.get('type') === 'script' && !isBuildFile(asset, editor)
@@ -82,7 +82,7 @@ editor.once('assets:load', async progress => {
     initialFiles.forEach(({ key, value }) => cache[key] = value)
 
     // initialize the compiler
-    window.postMessage({ message: 'pcpm:init', data: cache })
+    // window.postMessage({ message: 'pcpm:init', data: cache })
 
     /*
      *  Listen for compiler events
@@ -133,7 +133,7 @@ editor.once('assets:load', async progress => {
     })
 
 
-    triggerRebuild(cache)
+    triggerBuild(cache)
 
     // When an asset is added watch for changes and trigger an immediate incremental build
     editor.on('assets:add', async asset => {
@@ -175,7 +175,7 @@ editor.once('assets:load', async progress => {
     //     //     cache[name] = code
     //     // })
 
-    //     // triggerRebuild()
+    //     // triggerBuild()
     // }
 
     // editor.on('package:fs:change', doc => {
