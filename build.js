@@ -12,6 +12,7 @@ esbuild.build({
     entryPoints: ['./src/contentscripts', './src/serviceworkers', './src/ipcpm', './src/editor'],
     outdir: 'build',
     bundle: true,
+    external: ['path', 'fs', 'os'],
 watch: {
     onRebuild(error, result) {
         if (error) console.error('watch build failed:', error)

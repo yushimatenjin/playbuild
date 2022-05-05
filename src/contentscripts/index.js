@@ -20,19 +20,20 @@ const build = async files => {
         esBuildInitialised = true
     }
 
-    const plugin = cachePlugin({
+    const { plugin, updateFiles } = cachePlugin({
         '/index.js' : constructIndex(files),
         ...files
     })
 
     console.time('build')
-    const { outputFiles, errors } = await esbuild.build({
+    const { outputFiles, errors, rebuild } = await esbuild.build({
         entryPoints: ['/index.js'],
         plugins: [plugin],
         bundle: true,
+        platform: 'browser',
         // resolveExtensions: ['.ts', '.js'],
         write: false,
-        // incremental: true
+        incremental: true
     })
     console.timeEnd('build')
 

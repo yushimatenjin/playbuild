@@ -1,33 +1,37 @@
-var { resolve } = require('path-browserify')
+import { resolve } from 'path-browserify'
+import { resolveModule } from '../resolve'
 
 export default function cachePlugin (files) {
+
+    let vfs = files
+    const updateFiles = newFiles => (vfs = newFiles)
    
     return {
-        name: 'cache',
-        setup(build) {
+        updateFiles,
+        plugin: {
+            name: 'cache',
+            setup(build) {
 
-            build.onResolve({ filter: /.*/ }, async ({ path, resolveDir }) => {
-                // console.log('resolve', path.resolve(args.resolveDir, args.path ))
-                try {
-                    const result = await build.resolve(path, { resolveDir })
-                }catch(e){
-                    console.log(err0r)
-                }
+                build.onResolve({ filter: /.*/ }, async ({ path, resolveDir }) => {
 
-                // console.log(result)
-                return {
-                    path: resolve(resolveDir, path )
-                }
-            })
+                    const absPath = resolve(resolveDir, path)
+                    const resolvedPath = resolveModule(absPath, files)
+                    if(!resolvedPath){
+                        return { errors: [new Error(`Module '${resolve(resolveDir, path)}' not found.`)]}
+                    }
+                    return {
+                        path: resolvedPath
+                    }
+                })
+            
+                build.onLoad({ filter: /.*/ }, async (args) => {
+                    return {
+                        contents: files[args.path],
+                        loader: 'js',
+                    }
+                })
         
-            build.onLoad({ filter: /.*/ }, async (args) => {
-                // console.log("CACHE", args.path, !!files[args.path])
-                return {
-                    contents: files[args.path],
-                    loader: 'js',
-                }
-            })
-    
+            }
         }
     }
-  }
+}
