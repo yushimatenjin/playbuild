@@ -10,7 +10,6 @@
   },
   "type": "module",
   "author": "Mark Lundin",
-  "license": "ISC",
   "devDependencies": {
     "esbuild": "^0.14.38",
     "ws": "^8.5.0"
