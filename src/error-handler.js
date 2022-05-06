@@ -1,38 +1,100 @@
 import { SourceMapConsumer } from 'source-map'
+import StackTrace from 'stacktrace-js'
+import StackTraceGPS from 'stacktrace-gps'
 
-const injectOnError = async _ => {
+const injectOnError = _ => {
 
-    const script = Array.from(document.querySelectorAll('script')).find(script => script.src.includes('.pcpm/'))
+    // SourceMapConsumer.initialize({
+    //     "lib/mappings.wasm": "https://unpkg.com/source-map@0.7.3/lib/mappings.wasm"
+    // });
+    var gps = new StackTraceGPS();
     
-    if(script){
+    const onAssetAdded = async asset => {
+    
+        if(asset.get('file.url')?.includes('.pcpm/built.js')){
 
-        SourceMapConsumer.initialize({
-            "lib/mappings.wasm": "https://unpkg.com/source-map@0.7.3/lib/mappings.wasm"
-        });
+            pc.app.off('assets:add', onAssetAdded)
 
-        const pragma = '//# sourceMappingURL=data:application/json;base64,'
-        const code = await fetch(script.src).then(r => r.text())
-        const b64 = code.slice(code.indexOf(pragma) + pragma.length)
-        const sourceMap = JSON.parse(window.atob(b64))
+            // console.log('load', buildAsset.file.url)
+
+
+            const pragma = '//# sourceMappingURL=data:application/json;base64,'
+            const code = await fetch('/api/' + asset.get('file.url')).then(r => r.text())
+            const b64 = code.slice(code.indexOf(pragma) + pragma.length)
+            const sourceMap = JSON.parse(window.atob(b64))
+            
+            // const consumer = await new SourceMapConsumer(sourceMap);
+
+            const consoleError = console.error
+            console.error = function(...args){
+
+                console.log(args)
+
+                const sourceMapped = args.map(async item => {
+                    if(item instanceof Error && item.stack){
+
+                        const frames = await StackTrace.fromError(item)
+                        const frame = frames[0]
+                        // const { functionName } = await gps.pinpoint(frame)
+                        const strError = frames.map(sf => `at ` + sf.toString()).join('\n');
+                        console.log(frame.fileName)
+       
+                        // console.log(strError);
+                        item.stack = item.message + '\n    ' + strError
+                        consoleError(item)
+
+                        // consoleError(item)
+
+                        // const msg = item.message;
+                        // const lines = item.stack.split('\n');
+                        // if (lines.length >= 2) {
+                        //     const line = lines[1];
+                        //     let url = line.slice(line.indexOf('(') + 1);
+                        //     const m = url.match(/:[0-9]+:[0-9]+\)/);
+                        //     if (m) {
+                        //         url = url.slice(0, m.index);
+                        //         var parts = m[0].slice(1, -1).split(':');
         
-        const consumer = await new SourceMapConsumer(sourceMap);
+                        //         if (parts.length === 2) {
+                        //             var lineNumber = parseInt(parts[0], 10);
+                        //             var colNumber = parseInt(parts[1], 10);
 
-        const onPCError = window.onerror
-        window.onerror  = function(msg, url, line, column, e){
-            // check if originated from built.js
-            if(url.indexOf('files/.pcpm/built.js') !== -1){
-                const m = consumer.originalPositionFor({
-                    line, 
-                    column
+                        //             const mapping = consumer.originalPositionFor({
+                        //                 line: lineNumber,
+                        //                 column: colNumber
+                        //             })
+        
+                        //             console.log(msg, url, lineNumber, colNumber, mapping)
+                                    
+                        //             // onError(msg, url, lineNumber, colNumber, item);
+                        //             // errorPassed = true;
+                        //         }
+                        //     }
+                        // }
+                    }
                 })
-                onPCError(msg, m.source, m.line, m.column, e)
-            } else {
-                onPCError(msg, url, line, column, e)
-            }
-        }
 
-        consumer.destroy();
+            }
+
+            // const onPCError = window.onerror
+            // window.onerror  = function(msg, url, line, column, e){
+            //     // check if originated from built.js
+            //     if(url.indexOf('files/.pcpm/built.js') !== -1){
+            //         const m = consumer.originalPositionFor({
+            //             line, 
+            //             column
+            //         })
+            //         onPCError(msg, m.source, m.line, m.column, e)
+            //     } else {
+            //         onPCError(msg, url, line, column, e)
+            //     }
+            // }
+
+            // consumer.destroy();
+        }
     }
+
+    editor.on('assets:add', onAssetAdded)
 }
 
-editor?.on('assets:load', _ => injectOnError())
+injectOnError()
