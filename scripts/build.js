@@ -1,11 +1,12 @@
 import * as esbuild from "esbuild"
-import common from './common.js'
-
+import common, { plugins } from './common.js'
+import manifestPlugin from './manifest-plugin.js'
 
 esbuild.build({
     ...common,
-    minify: true,
-    mangleProps: /_$/,
+    plugins: [...plugins, manifestPlugin(false)],
+    // minify: true,
+    // mangleProps: /_$/,
 }).then(result => {
     console.log('Build Successful...')
 })

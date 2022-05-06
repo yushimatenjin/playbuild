@@ -1,6 +1,7 @@
 import * as esbuild from "esbuild"
 import { WebSocketServer } from 'ws';
-import common from './common.js'
+import common, { plugins } from './common.js'
+import manifestPlugin from './manifest-plugin.js'
  
 const wss = new WebSocketServer({ port: 8080 })
 let ws
@@ -11,6 +12,7 @@ wss.on('connection', localWs => {
 
 esbuild.build({
     ...common,
+    plugins: [...plugins, manifestPlugin(true)],
     watch: {
         onRebuild(error, result) {
             if (error) console.error('watch build failed:', error)
