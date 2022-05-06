@@ -19,7 +19,7 @@ const build = async files => {
     if(!esBuildInitialised){
         await esbuild.initialize({
             worker: false,
-            wasmURL: chrome.runtime.getURL('./esbuild.wasm')
+            wasmURL: chrome.runtime.getURL('./compiler.wasm')
         })
         esBuildInitialised = true
     }
@@ -79,7 +79,7 @@ window.onmessage = ({ data }) => {
 const isEditor = location.href.includes('/editor/code')
 const isLauncher = !isEditor && location.href.includes('://launch.playcanvas.com/')
 var s = document.createElement('script');
-s.src = chrome.runtime.getURL(isEditor ? 'editor.js' : isLauncher ? 'error-handler.js' : 'ipcpm.js');
+s.src = chrome.runtime.getURL(isEditor ? 'editor.js' : 'ipcpm.js');
 s.onload = function() {
     this.remove();
 };

@@ -4,7 +4,8 @@
   "description": "A Package Manager Extension for PlayCanvas",
   "main": "index.js",
   "scripts": {
-    "dev": "node build.js",
+    "dev": "node dev.js",
+    "build": "node build.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "type": "module",
@@ -19,7 +20,6 @@
     "diff-match-patch-js-browser-and-nodejs": "^1.0.2",
     "esbuild-wasm": "^0.14.38",
     "path-browserify": "^1.0.1",
-    "source-map": "^0.7.3",
     "stacktrace-gps": "^3.0.4",
     "stacktrace-js": "^2.0.2"
   }

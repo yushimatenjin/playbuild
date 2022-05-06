@@ -1,4 +1,4 @@
-import { SourceMapConsumer } from 'source-map'
+// import { SourceMapConsumer } from 'source-map'
 import StackTrace from 'stacktrace-js'
 import StackTraceGPS from 'stacktrace-gps'
 
@@ -77,21 +77,6 @@ const injectOnError = _ => {
                 })
 
             }
-
-            // const onPCError = window.onerror
-            // window.onerror  = function(msg, url, line, column, e){
-            //     // check if originated from built.js
-            //     if(url.indexOf('files/.pcpm/built.js') !== -1){
-            //         const m = consumer.originalPositionFor({
-            //             line, 
-            //             column
-            //         })
-            //         onPCError(msg, m.source, m.line, m.column, e)
-            //     } else {
-            //         onPCError(msg, url, line, column, e)
-            //     }
-            // }
-
             // consumer.destroy();
         }
     }
