@@ -1,0 +1,27 @@
+{
+	"name": "PCPM",
+	"description": "A Package Manager Extension for PlayCanvas",
+	"version": "0.0.1",
+	"manifest_version": 3,
+    "permissions": [
+        "tabs"
+    ],
+	"content_security_policy": {
+		"extension_pages": "script-src 'self' 'wasm-unsafe-eval'; default-src 'self'"
+	},
+	"background": {
+		"service_worker": "serviceworkers.js"
+	},
+	"content_scripts": [{
+		"matches": ["https://*.playcanvas.com/editor/scene/*", "https://*.playcanvas.com/editor/code/*", "https://launch.playcanvas.com/*"],
+        "run_at": "document_idle",
+		"js": ["contentscripts.js"]
+
+	}],
+    "web_accessible_resources": [
+        {
+            "resources": [ "ipcpm.js", "editor.js", "compiler.wasm" ],
+            "matches": [ "https://*/*" ]
+        }
+    ]
+}
