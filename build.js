@@ -9,7 +9,7 @@ wss.on('connection', localWs => {
 })
 
 esbuild.build({
-    entryPoints: ['./src/contentscripts', './src/serviceworkers', './src/ipcpm', './src/editor'],
+    entryPoints: ['./src/contentscripts', './src/serviceworkers', './src/ipcpm', './src/editor', './src/error-handler' ],
     outdir: 'build',
     bundle: true,
     external: ['path', 'fs', 'os'],

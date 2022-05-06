@@ -18,6 +18,7 @@
     "debounce": "^1.2.1",
     "diff-match-patch-js-browser-and-nodejs": "^1.0.2",
     "esbuild-wasm": "^0.14.38",
-    "path-browserify": "^1.0.1"
+    "path-browserify": "^1.0.1",
+    "source-map": "^0.7.3"
   }
 }
