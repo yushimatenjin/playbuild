@@ -32,9 +32,11 @@ const injectOnError = _ => {
 
                 const sourceMapped = args.map(async item => {
                     if(item instanceof Error && item.stack){
-
+                        const line = item.stack.split('\n')?.[1]
+                        const url = line.slice(line.indexOf('(') + 1)
                         const frames = await StackTrace.fromError(item)
                         const frame = frames[0]
+                        //parseInt(url.match(/\/api\/assets\/files\/.+?id=([0-9]+)/)[1], 10)
                         // const { functionName } = await gps.pinpoint(frame)
                         const strError = frames.map(sf => `at ` + sf.toString()).join('\n');
                         console.log(frame.fileName)
