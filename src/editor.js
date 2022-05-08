@@ -1,4 +1,4 @@
-import { diff2Op, findAsset, getBuildDir, getBuildFile, isBuildDir, isBuildFile, isPkgJson, resolvePath } from "./utils"
+import { diff2Op, findAsset, getBuildDir, getBuildFile, isBuildDir, isBuildFile, isPkgJson, resolvePath, isAmmo } from "./utils"
 import * as DiffMatchPatch from 'diff-match-patch-js-browser-and-nodejs/diff_match_patch.js';
 import { debounce } from 'debounce'
 import path from 'path-browserify'
@@ -25,10 +25,9 @@ editor.once('assets:load', async progress => {
     /*
      *  Resolves an assets contents and watches it for updates
      */
-
     const watchFile = (asset, onUpdate) => {
         return new Promise((resolve, reject ) => {
-            if(!isScript(asset)) return
+            if(!isScript(asset) || isBuildFile(asset) || isAmmo(asset)) return
             
             const name = asset.get('name')
             const uid = asset.get('id')
@@ -60,7 +59,8 @@ editor.once('assets:load', async progress => {
 
             const resolveData = asset => editor.call('assets:contents:get', asset, (err, value) => {
                 const key = resolvePath(asset)
-                if(!err) resolve({ key, value })
+                if(err) reject(err)
+                else resolve({ key, value })
             })
 
             if (editor.call('documents:get', uid )?.data) {
@@ -76,14 +76,11 @@ editor.once('assets:load', async progress => {
     
     // Load the initial available files and listen for changes
     const initialFiles = await Promise.all(editor.call('assets:list')
-        .filter(obs => obs.get('type') === 'script' && !isBuildFile(obs, editor))
+        .filter(obs => obs.get('type') === 'script' && !isBuildFile(obs, editor) && !isAmmo(obs))
         .map(asset => watchFile(asset, incrementalBuild)))
 
     // Update the cache with the initial files
     initialFiles.forEach(({ key, value }) => cache[key] = value)
-
-    // initialize the compiler
-    // window.postMessage({ message: 'pcpm:init', data: cache })
 
     /*
      *  Listen for compiler events
@@ -142,7 +139,7 @@ editor.once('assets:load', async progress => {
         // Source scripts included in the build must be excluded from PC launcher
         // const doc = connection.get('assets', asset.get('id'))
         // doc.submitOp({ p: ['exclude'], oi:true })
-        if(!isScript(asset)) return
+        if(!isScript(asset) || isAmmo(asset)) return
         watchFile(asset, incrementalBuild)
         
     })

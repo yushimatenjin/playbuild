@@ -34,6 +34,7 @@ const build = async files => {
         plugins: [plugin],
         bundle: true,
         platform: 'browser',
+        external: ['fs', 'path'],
         sourcemap: 'inline',
         sourceRoot: 'https://launch.playcanvas.com/api/assets/files/',
         write: false,

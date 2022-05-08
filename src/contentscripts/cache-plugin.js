@@ -15,6 +15,12 @@ export default function cachePlugin (files) {
                 build.onResolve({ filter: /.*/ }, async ({ path, resolveDir }) => {
                     
                     const absPath = resolve(resolveDir, path)
+
+                    if (['fs', 'path'].includes(path)) {
+                        return {
+                            external: true
+                        }    
+                    }
                     // console.log('absPath', absPath)
                     const resolvedPath = resolveModule(absPath, vfs)
                     if(resolvedPath === undefined){

@@ -31,6 +31,10 @@ export const isPkgJson = asset =>
   asset.get('name') === PACKAGE_JSON_NAME &&
   asset.get('path').length === 0
 
+export const isAmmo = asset =>
+  asset.get('type') === 'script' &&
+  (asset.get('name') === 'ammo.js' || asset.get('name') === 'ammo.wasm.js')
+
 export const isBuildDir = asset =>
   asset.get('type') === 'folder' &&
   asset.get('name') === BUILD_DIR_NAME &&

@@ -1,0 +1,1 @@
+editor.call('entities:root').apiEntity.addScript( 'built')
