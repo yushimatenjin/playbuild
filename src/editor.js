@@ -28,7 +28,7 @@ editor.once('assets:load', async progress => {
     
     const watchFile = (asset, onUpdate) => {
         return new Promise((resolve, reject ) => {
-            if(!isWatchableFile(asset, editor)) reject(`Asset '${asset.get('name')}' is not a type of file that can be bundled`)
+            // if(!isWatchableFile(asset, editor)) reject(`Asset '${asset.get('name')}' is not a type of file that can be bundled`)
             
             const name = asset.get('name')
             const uid = asset.get('id')
@@ -49,13 +49,14 @@ editor.once('assets:load', async progress => {
             asset.on('name:set', (name, nameOld) => {
                 const key = path.join(path.dirname(resolvePath(asset)), nameOld)
                 console.log('name set. removing', key)
-                updateCache({ key, value: null })
+                onUpdate({ key, value: null })
             })
             
+            // If the assets moves
             asset.on('path:set', (path, oldPath) => {
                 const key = resolvePath(asset, oldPath)
                 console.log('path set. removing', key)
-                updateCache({ key, value: null })
+                onUpdate({ key, value: null })
             })
 
             const resolveData = asset => editor.call('assets:contents:get', asset, (err, value) => {
