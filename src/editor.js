@@ -1,4 +1,4 @@
-import { diff2Op, findAsset, getBuildDir, getBuildFile, isBuildDir, isBuildFile, isPkgJson, resolvePath, isAmmo } from "./utils"
+import { isWatchableFile, diff2Op, findAsset, getBuildDir, getBuildFile, isBuildDir, isBuildFile, isPkgJson, resolvePath, isAmmo } from "./utils"
 import * as DiffMatchPatch from 'diff-match-patch-js-browser-and-nodejs/diff_match_patch.js';
 import { debounce } from 'debounce'
 import path from 'path-browserify'
@@ -25,9 +25,10 @@ editor.once('assets:load', async progress => {
     /*
      *  Resolves an assets contents and watches it for updates
      */
+    
     const watchFile = (asset, onUpdate) => {
         return new Promise((resolve, reject ) => {
-            if(!isScript(asset) || isBuildFile(asset) || isAmmo(asset)) return
+            if(!isWatchableFile(asset)) reject(`Asset '${asset.get('name')}' is not a type of file that can be bundled`)
             
             const name = asset.get('name')
             const uid = asset.get('id')
@@ -76,7 +77,7 @@ editor.once('assets:load', async progress => {
     
     // Load the initial available files and listen for changes
     const initialFiles = await Promise.all(editor.call('assets:list')
-        .filter(obs => obs.get('type') === 'script' && !isBuildFile(obs, editor) && !isAmmo(obs))
+        .filter(isWatchableFile(asset))
         .map(asset => watchFile(asset, incrementalBuild)))
 
     // Update the cache with the initial files

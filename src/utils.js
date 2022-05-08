@@ -45,6 +45,8 @@ export const isBuildFile = (asset, editor) =>
   asset.get('name') === BUILD_FILE_NAME &&// with the right name
   asset.get('path').length === 1 && // that has one parent
   editor.call('assets:get', asset.get('path')[0]).get('name') === BUILD_DIR_NAME // called $BUILD_DIR_NAME
+  
+export const isWatchableFile = asset => isScript(asset) && !isBuildFile(asset) && !isAmmo(asset)
 
 export const findAsset = (editor, search) => editor.call('assets:findOne', asset => search(asset, editor))?.[1]
 

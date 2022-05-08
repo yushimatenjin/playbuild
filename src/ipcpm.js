@@ -2,7 +2,7 @@
 
 
 editor.on('assets:scripts:add', asset => {
-  if(isBuildFile(asset) || isAmmo(asset)) return
+  if(!isWatchableFile(asset)) return
   asset.set('exclude', true)
   asset.set('preload', false)
 })
