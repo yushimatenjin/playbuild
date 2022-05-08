@@ -1,10 +1,10 @@
 // import PackageManagerSettings from './package-manager';
-
+import { isWatchableFile } from './utils'
 
 editor.on('assets:scripts:add', asset => {
   if(!isWatchableFile(asset)) return
   asset.set('exclude', true)
-  asset.set('preload', false)
+  asset.set('preload', true)
 })
 
 // editor.assets.on('load:progress', progress => {

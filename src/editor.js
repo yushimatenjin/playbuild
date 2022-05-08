@@ -20,7 +20,7 @@ editor.once('assets:load', async progress => {
         triggerBuild(cache)
     }
 
-    const isScript = asset => asset.get('type') === 'script' && !isBuildFile(asset, editor)
+    
 
     /*
      *  Resolves an assets contents and watches it for updates
@@ -28,7 +28,7 @@ editor.once('assets:load', async progress => {
     
     const watchFile = (asset, onUpdate) => {
         return new Promise((resolve, reject ) => {
-            if(!isWatchableFile(asset)) reject(`Asset '${asset.get('name')}' is not a type of file that can be bundled`)
+            if(!isWatchableFile(asset, editor)) reject(`Asset '${asset.get('name')}' is not a type of file that can be bundled`)
             
             const name = asset.get('name')
             const uid = asset.get('id')
@@ -37,7 +37,7 @@ editor.once('assets:load', async progress => {
             // Source scripts included in the build must be excluded from PC launcher
             const doc = connection.get('assets', asset.get('id'))
             doc.submitOp({ p: ['exclude'], oi:true })
-            doc.submitOp({ p: ['preload'], oi:false })
+            doc.submitOp({ p: ['preload'], oi:true })
 
             asset.sync.on('sync', _ => {
                 const doc = editor.call('documents:get', uid );
@@ -77,7 +77,7 @@ editor.once('assets:load', async progress => {
     
     // Load the initial available files and listen for changes
     const initialFiles = await Promise.all(editor.call('assets:list')
-        .filter(isWatchableFile(asset))
+        .filter(asset => isWatchableFile(asset, editor))
         .map(asset => watchFile(asset, incrementalBuild)))
 
     // Update the cache with the initial files
@@ -140,14 +140,14 @@ editor.once('assets:load', async progress => {
         // Source scripts included in the build must be excluded from PC launcher
         // const doc = connection.get('assets', asset.get('id'))
         // doc.submitOp({ p: ['exclude'], oi:true })
-        if(!isScript(asset) || isAmmo(asset)) return
+        if(!isWatchableFile(asset, editor)) return
         watchFile(asset, incrementalBuild)
         
     })
 
     editor.on('assets:remove', asset => {
 
-        if(!isScript(asset)) return
+        if(!isWatchableFile(asset, editor)) return
         // Trigger some rebuild when files has been removed
         const key = resolvePath(asset)
         incrementalBuild({ key, value: null })

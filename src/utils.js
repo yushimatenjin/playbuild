@@ -31,8 +31,10 @@ export const isPkgJson = asset =>
   asset.get('name') === PACKAGE_JSON_NAME &&
   asset.get('path').length === 0
 
+export const isScript = asset => asset.get('type') === 'script'
+
 export const isAmmo = asset =>
-  asset.get('type') === 'script' &&
+  isScript(asset) &&
   (asset.get('name') === 'ammo.js' || asset.get('name') === 'ammo.wasm.js')
 
 export const isBuildDir = asset =>
@@ -41,12 +43,12 @@ export const isBuildDir = asset =>
   asset.get('path').length === 0
 
 export const isBuildFile = (asset, editor) =>
-  asset.get('type') === 'script' && // It's a script
+  isScript(asset) && // It's a script
   asset.get('name') === BUILD_FILE_NAME &&// with the right name
   asset.get('path').length === 1 && // that has one parent
   editor.call('assets:get', asset.get('path')[0]).get('name') === BUILD_DIR_NAME // called $BUILD_DIR_NAME
-  
-export const isWatchableFile = asset => isScript(asset) && !isBuildFile(asset) && !isAmmo(asset)
+
+export const isWatchableFile = (asset, editor) => isScript(asset) && !isBuildFile(asset, editor) && !isAmmo(asset)
 
 export const findAsset = (editor, search) => editor.call('assets:findOne', asset => search(asset, editor))?.[1]
 
