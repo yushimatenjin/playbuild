@@ -1,7 +1,8 @@
-import NoPackageJson from './no-package';
+// import NoPackageJson from './no-package';
 import * as DiffMatchPatch from 'diff-match-patch-js-browser-and-nodejs/diff_match_patch.js';
-import { diff2Op, findAsset } from './utils';
+import { diff2Op, findAsset } from '../utils';
 import PackagePanel from './package-panel';
+import { Panel, Container, TextInput, InfoBox } from '@playcanvas/pcui'
 
 const MAX_RESULTS = 5
 const MIN_SEARCH_NUM_CHAR = 3
@@ -28,37 +29,34 @@ const ATTRIBUTES = [
 ]
         
         
-export default class PackageManagerSettings extends pcui.BaseSettingsPanel {
+export default class PackageManagerSettings extends Panel {
 
-    constructor(){
+    constructor(pkg){
         super({
-            assets: editor.call('assets:raw'),
-            entities: editor.call('entities:list'),
-            history: editor.call('editor:history'),
-            settings: editor.call('settings:projectUser'),
-            projectSettings: editor.call('settings:project'),
-            userSettings: editor.call('settings:user'),
-            sceneSettings: editor.call('sceneSettings'),
-            sessionSettings: editor.call('settings:session'),
-            attributes: ATTRIBUTES,
-            headerText: 'PACKAGE MANANGER'
+            collapsed: false,
+            collapsible: true,
+            removable: false,
+            headerText: 'PACKAGES'
         })
 
         // this.style.position = "relative";
-
-        let packageDoc
+        const connection = editor.call('realtime:connection')
+        let packageDoc = connection.get('assets', pkg.get('id'))
         let currentSearch
         const dmp = new DiffMatchPatch.diff_match_patch()
-        const searchInput = this._attributesInspector.getField('dep')
-        const resultsCont = this._attributesInspector.getField('results')
-        const installedPkgsCont = this._attributesInspector.getField('installed')
-        const noPackageWarn = new NoPackageJson()
+        const searchInput = new TextInput({keyChange: true, placeholder: 'Add Dependency'}) //this._attributesInspector.getField('dep')
+        const resultsCont = new Container({ hidden: true }) //this._attributesInspector.getField('results')
+        const installedPkgsCont = new Container()//this._attributesInspector.getField('installed')
+        // const noPackageWarn = new NoPackageJson()
 
-        this.append(noPackageWarn)
+        this.append(searchInput)
+        this.append(resultsCont)
+        this.append(installedPkgsCont)
+        // this.append(noPackageWarn)
         installedPkgsCont.style.margin = '3px 10px'
 
         const results = Array.from(new Array(MAX_RESULTS)).map(_ => {
-            const info = new pcui.InfoBox({
+            const info = new InfoBox({
                 icon: 'E218',
                 title: '',
                 text: ''
@@ -222,5 +220,9 @@ export default class PackageManagerSettings extends pcui.BaseSettingsPanel {
         // editor.assets.on('clear', onFileSystemUpdate)
         // noPackageWarn.on('package:created', onFileSystemUpdate)
         // onFileSystemUpdate(null)
+    }
+
+    updatePackages(pkg){
+        console.log('update', pkg)
     }
 }

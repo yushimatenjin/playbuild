@@ -1,42 +1,53 @@
 import { watchFile } from './fs'
 import { findAsset, isPkgJson } from '../utils.js'
 
-export const watchPkgJson = onChange => {
+export const watchJson = async (jsonFile, onChange) => {
+    const { value } = await watchFile(jsonFile, ({ value }) => onChange(JSON.parse(value)))
+    return JSON.parse(value)
+}
+
+export const watchPkgJson = async onChange => {
 
     if(!onChange || typeof onChange !== 'function') throw new Error(`'watchPkgJson' expects a function parameter`)
 
-    const watch = pkg => {
-        editor.on('assets:remove', asset => {
-            if(!isPkgJson(asset)) return
-            console.log('pkg removed!')
-            editor.on('assets:add', onAssetAdded)
-            onChange(null)
-        })
-        watchFile(pkg, onChange)
+    const onAssetRemoved = asset => {
+        if(!isPkgJson(asset)) return
+        editor.unbind('assets:remove', onAssetRemoved)
+        console.log('pkg removed!')
+        editor.on('assets:add', onAssetAdded)
+        onChange(null)
     }
 
-    const onAssetAdded = asset => {
+    const watch = pkg => {    
+        editor.on('assets:remove', onAssetRemoved)
+        return watchJson(pkg, onChange)
+    }
+    
+    const onAssetAdded = async asset => {
         if(isPkgJson(asset)){
             editor.unbind('assets:add', onAssetAdded)
-            watch(asset)
+            const pkg = await watch(asset)
+            onChange(JSON.parse(pkg.value))
         }
     }
     
     const packageJson = findAsset(isPkgJson)
-    if(packageJson) watch(packageJson)
+    if(packageJson) {
+        onChange(watch(packageJson))
+    }
     else editor.on('assets:add', onAssetAdded)
-
 }
 
 export const createPackageJson = _ => {
     return new Promise((resolve, reject) => {
-        if (!editor.call('permissions:write')) return
+        if (!editor.call('permissions:write')) reject()
+        if (findAsset(isPkgJson)) resolve(pkg)
 
         const pkg = {
             dependencies:{}
         }
 
-        var asset = {
+        var assetDef = {
             name: 'package.json',
             type: 'json',
             source: false,
@@ -48,6 +59,6 @@ export const createPackageJson = _ => {
             }
         };
 
-        editor.call('assets:create', asset, _ => resolve(pkg), true);
+        editor.call('assets:create', assetDef, _ => resolve(pkg), true);
     })
 }

@@ -1,3 +1,5 @@
+import { Panel } from '@playcanvas/pcui'
+
 const ATTRIBUTES = module => [
     {
         type: 'label',
@@ -5,7 +7,7 @@ const ATTRIBUTES = module => [
     },
 ]
 
-export default class PackagePanel extends pcui.Panel {
+export default class PackagePanel extends Panel {
     constructor({ name, version, description}){
         super({
             // assets: editor.call('assets:raw'),

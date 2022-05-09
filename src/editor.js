@@ -4,106 +4,43 @@ import { debounce } from 'debounce'
 import path from 'path-browserify'
 import { watchFile } from './utils/fs'
 import { watchPkgJson } from './utils/package'
+import PackageManagerSettings from './components/package-manager'
+import initializeBundler from './codeeditor/bundler'
 
 editor.once('assets:load', async progress => {
 
-    const cache = {}
-    const dmp = new DiffMatchPatch.diff_match_patch()
-    const connection = editor.call('realtime:connection')
+    // Watch for a pkg.json and any changes
+    let bundler, packagePanel
 
-    const updateCache = ({ key, value }) => value ? cache[key] = value : delete cache[key]
-
-    const triggerBuild = debounce(cache => {
-        window.postMessage({ message:'pcpm:build', data: cache })
-    }, 200)
-
-    const incrementalBuild = change => {
-        updateCache(change)
-        triggerBuild(cache)
-    }
+    // const initialisePackagePanel = pkg => {
+        
+    // }
     
-    // Load the initial available files and listen for changes
-    const initialFiles = await Promise.all(editor.call('assets:list')
-        .filter(isWatchableFile)
-        .map(asset => watchFile(asset, incrementalBuild)))
-
-    // Update the cache with the initial files
-    initialFiles.forEach(({ key, value }) => cache[key] = value)
-
-    /*
-     *  Listen for compiler events
-     */
-
-    window.addEventListener('message', async ({ data }) => {
-        switch(data.message){
-            case 'onCompiled' :
-                
-                console.log('onCompiled')
-                const buildFile = await getBuildFile(data.data)
-                const doc = connection.get('documents', buildFile.get('id'))
-
-                const save = _ => {
-                    console.log('saving', buildFile.get('id'))
-                    editor.call('realtime:send', 'doc:save:', parseInt(buildFile.get('id'), 10));
-                }
-
-                const submitOp = (doc, data) => {
-                    if(doc.data === data) return
-                    var diff = dmp.diff_main(doc.data, data);      
-                    console.log('submitting operation', diff)
-                    // dmp.diff_cleanupSemantic(diff);
-                    doc.once('op', _ => {
-                        doc.hasPending() ? doc.once('nothing pending',  save) : save()
-                    })
-
-                    doc.submitOp(diff2Op(diff))
-                }
-
-                if(doc.data) submitOp(doc, data.data)
-
-                doc.once('load', _ => {
-                    // submitOp(doc, data.data)
-                    console.log('Built File loaded')
-                    submitOp(doc, data.data);
-                    doc.destroy()
-                })
-
-                doc.subscribe()
-
-                break;
-            case 'onError' :
-                console.log('onError  ', data.data)
-                break;
-            default : break
+    watchPkgJson(pkg => {
+        if(!pkg) {
+            if(packagePanel){
+                console.log('Removing Package Manager')
+                // bundler.destroy()
+                packagePanel.destroy()
+                packagePanel = null
+            }
+        } else  {
+            if (!packagePanel) {
+                const pkgObs = findAsset(isPkgJson)
+                console.log('Adding Package Manager', pkg)
+                // packagePanel = new PackageManagerSettings(pkgObs)
+                // editor.call('layout.left').append(packagePanel)
+                // bundler = initializeBundler()
+            }
+            // packagePanel.updatePackages(pkg)
         }
     })
 
+    // if(pkgStr){
+    //     initialisePackagePanel(JSON.parse(pkgStr.value))
+    // }
+})
 
-    triggerBuild(cache)
-
-    // When an asset is added watch for changes and trigger an immediate incremental build
-    editor.on('assets:add', async asset => {
-
-        // Source scripts included in the build must be excluded from PC launcher
-        // const doc = connection.get('assets', asset.get('id'))
-        // doc.submitOp({ p: ['exclude'], oi:true })
-        if(!isWatchableFile(asset)) return
-        watchFile(asset, incrementalBuild)
-        
-    })
-
-    editor.on('assets:remove', asset => {
-
-        if(!isWatchableFile(asset)) return
-        // Trigger some rebuild when files has been removed
-        const key = resolvePath(asset)
-        incrementalBuild({ key, value: null })
-    })
-
-    watchPkgJson(change => {
-        console.log('code editor pkg.json change', change)
-    })
-    
     /*
         package.json
     */
@@ -169,4 +106,3 @@ editor.once('assets:load', async progress => {
     // // // editor.on('move', onFileSystemUpdate)
     // // // editor.on('clear', onFileSystemUpdate)
     // onFileSystemUpdate(null)
-})

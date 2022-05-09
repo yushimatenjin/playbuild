@@ -1,26 +1,4 @@
-const createPackageJson = _ => {
-    return new Promise((resolve, reject) => {
-        if (! editor.call('permissions:write')) return
-
-        const pkg = {
-            dependencies:{}
-        }
-
-        var asset = {
-            name: 'package.json',
-            type: 'json',
-            source: false,
-            filename: 'package.json',
-            file: new Blob([JSON.stringify(pkg, null, 4)], { type: 'application/json' }),
-            scope: {
-                type: 'project',
-                id: config.project.id
-            }
-        };
-
-        editor.call('assets:create', asset, _ => resolve(pkg), true);
-    })
-}
+import { createPackageJson } from '../utils/package'
 
 export default class NoPackageJson extends pcui.Container {
 
