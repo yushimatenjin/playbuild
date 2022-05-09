@@ -42,21 +42,20 @@ export const isBuildDir = asset =>
   asset.get('name') === BUILD_DIR_NAME &&
   asset.get('path').length === 0
 
-export const isBuildFile = (asset, editor) =>
+export const isBuildFile = asset =>
   isScript(asset) && // It's a script
   asset.get('name') === BUILD_FILE_NAME &&// with the right name
   asset.get('path').length === 1 && // that has one parent
   editor.call('assets:get', asset.get('path')[0]).get('name') === BUILD_DIR_NAME // called $BUILD_DIR_NAME
 
-export const isWatchableFile = (asset, editor) => isScript(asset) && !isBuildFile(asset, editor) && !isAmmo(asset)
+export const isWatchableFile = asset => isScript(asset) && !isBuildFile(asset) && !isAmmo(asset)
+export const findAsset = search => editor.call('assets:findOne', asset => search(asset))?.[1]
 
-export const findAsset = (editor, search) => editor.call('assets:findOne', asset => search(asset, editor))?.[1]
-
-export const getBuildDir = editor => {
+export const getBuildDir = _ => {
 
   return new Promise((resolve, reject) => {
 
-    const buildDir = findAsset(editor, isBuildDir)
+    const buildDir = findAsset(isBuildDir)
     if(buildDir) {
       resolve(buildDir)
       return
@@ -91,11 +90,11 @@ export const getBuildDir = editor => {
   })
 }
 
-export const getBuildFile = (editor, content = BANNER) => {
+export const getBuildFile = (content = BANNER) => {
 
   return new Promise(async (resolve, reject) => {
 
-    const buildFile = findAsset(editor, isBuildFile)
+    const buildFile = findAsset(isBuildFile)
     if(buildFile) {
       resolve(buildFile)
       return
@@ -103,7 +102,7 @@ export const getBuildFile = (editor, content = BANNER) => {
 
     if (!editor.call('permissions:write')) reject();
 
-    const buildDir = await getBuildDir(editor)
+    const buildDir = await getBuildDir()
 
     const selectedAsset = editor.call('assets:selected')?.[0]
 
@@ -121,7 +120,7 @@ export const getBuildFile = (editor, content = BANNER) => {
           editor.call('tabs:temp:unlock');
         }, 20 )
 
-        resolve(findAsset(editor, isBuildFile))
+        resolve(findAsset(isBuildFile))
       }
     })
 

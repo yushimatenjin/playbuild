@@ -2,26 +2,23 @@ const createPackageJson = _ => {
     return new Promise((resolve, reject) => {
         if (! editor.call('permissions:write')) return
 
-        // args = args || { };
+        const pkg = {
+            dependencies:{}
+        }
 
         var asset = {
             name: 'package.json',
             type: 'json',
             source: false,
-            // parent: (args.parent !== undefined) ? args.parent : editor.call('assets:panel:currentFolder'),
             filename: 'package.json',
-            file: new Blob([JSON.stringify({dependencies:{}}, null, 4)], { type: 'application/json' }),
+            file: new Blob([JSON.stringify(pkg, null, 4)], { type: 'application/json' }),
             scope: {
                 type: 'project',
                 id: config.project.id
             }
         };
 
-        const onDone = r => {
-            resolve()
-        }
-
-        editor.call('assets:create', asset, onDone, true);
+        editor.call('assets:create', asset, _ => resolve(pkg), true);
     })
 }
 
