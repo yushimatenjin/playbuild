@@ -1,4 +1,4 @@
-import { Panel } from '@playcanvas/pcui'
+import { Panel, InfoBox } from '@playcanvas/pcui'
 
 const ATTRIBUTES = module => [
     {
@@ -10,22 +10,13 @@ const ATTRIBUTES = module => [
 export default class PackagePanel extends Panel {
     constructor({ name, version, description}){
         super({
-            // assets: editor.call('assets:raw'),
-            // entities: editor.call('entities:list'),
-            // history: editor.call('editor:history'),
-            // settings: editor.call('settings:projectUser'),
-            // projectSettings: editor.call('settings:project'),
-            // userSettings: editor.call('settings:user'),
-            // sceneSettings: editor.call('sceneSettings'),
-            // sessionSettings: editor.call('settings:session'),
-            // attributes: ATTRIBUTES(module),
             headerText: name,
             collapsible: true,
             collapsed: true,
             removable: true
         })
         
-        const info = new pcui.InfoBox({
+        const info = new InfoBox({
             title: version,
             text: description
         })

@@ -1,6 +1,6 @@
 // import NoPackageJson from './no-package';
 import * as DiffMatchPatch from 'diff-match-patch-js-browser-and-nodejs/diff_match_patch.js';
-import { diff2Op, findAsset } from '../utils';
+import { diff2Op, findAsset, isPkgJson } from '../utils';
 import PackagePanel from './package-panel';
 import { Panel, Container, TextInput, InfoBox } from '@playcanvas/pcui'
 
@@ -38,22 +38,57 @@ export default class PackageManagerSettings extends Panel {
             removable: false,
             headerText: 'PACKAGES'
         })
+        console.log(editor.call('documents:get', pkg.get('id')))
+        pkg.sync.on('sync', _ => console.log('sync'))
 
         // this.style.position = "relative";
-        const connection = editor.call('realtime:connection')
-        let packageDoc = connection.get('assets', pkg.get('id'))
         let currentSearch
+        const connection = editor.call('realtime:connection')
+        let packageDoc = connection.get('documents', pkg.get('id'))
         const dmp = new DiffMatchPatch.diff_match_patch()
-        const searchInput = new TextInput({keyChange: true, placeholder: 'Add Dependency'}) //this._attributesInspector.getField('dep')
-        const resultsCont = new Container({ hidden: true }) //this._attributesInspector.getField('results')
-        const installedPkgsCont = new Container()//this._attributesInspector.getField('installed')
-        // const noPackageWarn = new NoPackageJson()
+        const searchInput = new TextInput({keyChange: true, placeholder: 'Add Dependency'})
+        const resultsCont = new Container({ hidden: true })
+        const installedPkgsCont = new Container()
 
         this.append(searchInput)
         this.append(resultsCont)
         this.append(installedPkgsCont)
-        // this.append(noPackageWarn)
+        
+        searchInput.style.width = 'calc(100% - 8px)'
         installedPkgsCont.style.margin = '3px 10px'
+
+        const onPackageDocUpdated = _ => {
+            if(!packageDoc?.data) return
+            // installedPkgsCont.clear()
+            const { dependencies } = JSON.parse(packageDoc.data)
+
+            installedPkgsCont.clear()
+
+            Object.keys(dependencies).forEach(async (name, i) => {
+                const module = await fetch(`https://registry.npmjs.com/${name}/${dependencies[name]}`).then(r => r.json())
+                // console.log(resp)
+                const packagePanel = new PackagePanel(module)
+                // const packagePanel = new pcui.Panel({
+                //     headerText: name,
+                //     removable: true,
+                //     collapsible: true,
+                //     collapsed: true
+                // })
+                // const info = new pcui.InfoBox({
+                //     icon: 'E218',
+                //     title: name,
+                //     text: 'SOME INFO'
+                // })
+                packagePanel.class.add('layers-settings-panel-layer-panel');
+                packagePanel.once('click:remove', _ => removePackage({ name }))
+                // packagePanel.append(info)
+                installedPkgsCont.append(packagePanel)
+            })
+        }
+
+        // packageDoc.on('op', onPackageDocUpdated)
+        // connection.get('assets', asset.get('id'))
+        onPackageDocUpdated()
 
         const results = Array.from(new Array(MAX_RESULTS)).map(_ => {
             const info = new InfoBox({
@@ -71,12 +106,16 @@ export default class PackageManagerSettings extends Panel {
             if(!packageDoc) return
 
             // Optimistically render the local packages assuming the operation succeeds
-
             // Find the diff between the two
             var diff = dmp.diff_main(packageDoc.data, JSON.stringify(newPkg, null, 4));      
             // dmp.diff_cleanupSemantic(diff);
+
+            packageDoc.once('op', _ => {
+                console.log('op')
+                editor.call('realtime:send', 'doc:save:', parseInt(pkg.get('id'), 10));
+            })
             
-            packageDoc.submitOp(diff2Op(diff))
+            packageDoc.submitOp(diff2Op(diff), {source:false})
         }
   
         const addPackage = ({ name, version }) => {

@@ -7,14 +7,11 @@ import { watchPkgJson } from './utils/package'
 import PackageManagerSettings from './components/package-manager'
 import initializeBundler from './codeeditor/bundler'
 
-editor.once('assets:load', async progress => {
+// editor.once('load', async progress => {
 
     // Watch for a pkg.json and any changes
     let bundler, packagePanel
-
-    // const initialisePackagePanel = pkg => {
-        
-    // }
+console.log('wathcing')
     
     watchPkgJson(pkg => {
         if(!pkg) {
@@ -27,19 +24,21 @@ editor.once('assets:load', async progress => {
         } else  {
             if (!packagePanel) {
                 const pkgObs = findAsset(isPkgJson)
-                console.log('Adding Package Manager', pkg)
-                // packagePanel = new PackageManagerSettings(pkgObs)
-                // editor.call('layout.left').append(packagePanel)
+                // const data = await watchFile(pkgObs)
+                console.log('Adding Package Manager')
+                // pkgObs.once('file.filename:set', _ => resolveData(asset));)
+                packagePanel = new PackageManagerSettings(pkgObs)
+                editor.call('layout.left').append(packagePanel)
                 // bundler = initializeBundler()
             }
-            // packagePanel.updatePackages(pkg)
+            packagePanel.updatePackages(pkg)
         }
     })
 
     // if(pkgStr){
     //     initialisePackagePanel(JSON.parse(pkgStr.value))
     // }
-})
+// })
 
     /*
         package.json

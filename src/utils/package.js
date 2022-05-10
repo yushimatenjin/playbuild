@@ -27,7 +27,7 @@ export const watchPkgJson = async onChange => {
         if(isPkgJson(asset)){
             editor.unbind('assets:add', onAssetAdded)
             const pkg = await watch(asset)
-            onChange(JSON.parse(pkg.value))
+            onChange(pkg)
         }
     }
     

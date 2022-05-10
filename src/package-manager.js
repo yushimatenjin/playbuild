@@ -55,6 +55,7 @@ export default class PackageManagerSettings extends pcui.BaseSettingsPanel {
         const noPackageWarn = new NoPackageJson()
 
         this.append(noPackageWarn)
+        searchInput.style.width = 'calc(100% - 12px);'
         installedPkgsCont.style.margin = '3px 10px'
 
         const results = Array.from(new Array(MAX_RESULTS)).map(_ => {

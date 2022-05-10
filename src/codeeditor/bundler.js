@@ -2,7 +2,6 @@ import { isWatchableFile, diff2Op, getBuildFile, resolvePath } from "../utils"
 import * as DiffMatchPatch from 'diff-match-patch-js-browser-and-nodejs/diff_match_patch.js';
 import { debounce } from 'debounce'
 import { watchFile } from '../utils/fs'
-import { watchPkgJson } from '../utils/package'
 
 export default async function initialize(cache = {}) {
 
