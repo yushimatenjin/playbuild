@@ -1,5 +1,6 @@
 import * as esbuild from 'esbuild-wasm'
 import cachePlugin from './cache-plugin'
+import unpkgPathPlugin from './unpkg-path-plugin'
 
 const withIndex = files => {
     const imports = Object.keys(files ?? []).map(path =>{
@@ -14,6 +15,7 @@ const withIndex = files => {
 
 let esBuildInitialised = false
 let incrementalBuild
+let updateFileCache, updateModules
 const build = async (files, deps) => {
 
     if(!esBuildInitialised){
@@ -24,14 +26,16 @@ const build = async (files, deps) => {
         esBuildInitialised = true
     }
     
-    const { plugin, updateFiles } = cachePlugin(withIndex(files))
+    const { plugin : filePlugin, updateFiles } = cachePlugin(withIndex(files))
+    const { plugin : unpkgPlugin, updatePackages } = unpkgPathPlugin(deps)
 
     updateFileCache = files => updateFiles(withIndex(files))
+    updateModules = updatePackages  
 
     console.time('Full Build')
     const { outputFiles, errors, rebuild } = await esbuild.build({
         entryPoints: ['/index.js'],
-        plugins: [plugin],
+        plugins: [unpkgPlugin, filePlugin],
         bundle: true,
         platform: 'browser',
         external: ['fs', 'path'],
@@ -57,6 +61,7 @@ const rebuild = async ({ cache, deps }) => {
     if(!incrementalBuild) build(cache, deps)
     else{
         updateFileCache(cache)
+        updateModules(deps)
         console.time('Incremental Build')
         const { outputFiles, errors } = await incrementalBuild()
         console.timeEnd('Incremental Build')

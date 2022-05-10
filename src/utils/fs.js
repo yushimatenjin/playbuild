@@ -22,7 +22,7 @@ export const watchFile = (asset, onUpdate) => {
         // Source scripts included in the build must be excluded from PC launcher
         const doc = connection.get('assets', asset.get('id'))
         doc.submitOp({ p: ['exclude'], oi:true })
-        doc.submitOp({ p: ['preload'], oi:true })
+        doc.submitOp({ p: ['preload'], oi:false })
 
         asset.sync.on('sync', _ => {
             const doc = editor.call('documents:get', uid );
