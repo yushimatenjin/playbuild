@@ -114,6 +114,7 @@ export const getBuildFile = (content = BANNER) => {
       noSelect: true, // This is ignored
       callback: _ => {
 
+        // KLUDGE - Currently the create:script ignores the noSelect param so we have a dodgy timeout here (racecondition?)
         setTimeout(function () {
           editor.call('tabs:temp:lock');
           selectedAsset ? editor.call('files:select', selectedAsset.get('id')) : editor.call('files:deselectAll')

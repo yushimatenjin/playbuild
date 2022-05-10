@@ -41,7 +41,7 @@ export const watchPkgJson = async onChange => {
 export const createPackageJson = _ => {
     return new Promise((resolve, reject) => {
         if (!editor.call('permissions:write')) reject()
-        if (findAsset(isPkgJson)) resolve(pkg)
+        // if (findAsset(isPkgJson)) resolve(pkg)
 
         const pkg = {
             dependencies:{}

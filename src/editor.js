@@ -11,29 +11,30 @@ import initializeBundler from './codeeditor/bundler'
 
     // Watch for a pkg.json and any changes
     let bundler, packagePanel
-console.log('wathcing')
     
-    watchPkgJson(pkg => {
+    watchPkgJson(async pkg => {
         if(!pkg) {
             if(packagePanel){
                 console.log('Removing Package Manager')
-                // bundler.destroy()
+                bundler.destroy()
                 packagePanel.destroy()
                 packagePanel = null
             }
         } else  {
             if (!packagePanel) {
-                const pkgObs = findAsset(isPkgJson)
-                // const data = await watchFile(pkgObs)
-                console.log('Adding Package Manager')
-                // pkgObs.once('file.filename:set', _ => resolveData(asset));)
-                packagePanel = new PackageManagerSettings(pkgObs)
+
+
+                bundler = await initializeBundler({}, pkg.dependencies)
+
+                packagePanel = new PackageManagerSettings(findAsset(isPkgJson))
                 editor.call('layout.left').append(packagePanel)
-                // bundler = initializeBundler()
+
             }
             packagePanel.updatePackages(pkg)
+            bundler.updateDeps(pkg.dependencies)
         }
     })
+// })
 
     // if(pkgStr){
     //     initialisePackagePanel(JSON.parse(pkgStr.value))

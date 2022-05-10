@@ -50,9 +50,10 @@ export const watchFile = (asset, onUpdate) => {
             else resolve({ key, value })
         })
 
-        if (editor.call('documents:get', uid )?.data) {
+        const editorDoc = editor.call('documents:get', uid )
+        if (editorDoc?.data) {
             const key = resolvePath(asset)
-            resolve({ key, value: doc.data })
+            resolve({ key, value: editorDoc.data })
         } else if (asset.get('file.filename')) {
             resolveData(asset);
         } else {

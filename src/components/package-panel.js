@@ -18,7 +18,8 @@ export default class PackagePanel extends Panel {
         
         const info = new InfoBox({
             title: version,
-            text: description
+            text: description,
+            icon: 'E410'
         })
 
         this.content.style.background = 'rgb(41, 53, 56)'

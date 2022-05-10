@@ -3,20 +3,21 @@ import * as DiffMatchPatch from 'diff-match-patch-js-browser-and-nodejs/diff_mat
 import { debounce } from 'debounce'
 import { watchFile } from '../utils/fs'
 
-export default async function initialize(cache = {}) {
+export default async function initialize(cache = {}, dependencies = {}) {
 
     const dmp = new DiffMatchPatch.diff_match_patch()
     const connection = editor.call('realtime:connection')
 
     const updateCache = ({ key, value }) => value ? cache[key] = value : delete cache[key]
 
-    const triggerBuild = debounce(cache => {
-        window.postMessage({ message:'pcpm:build', data: cache })
+    const triggerBuild = debounce((cache, deps) => {
+        console.log('build', cache, deps)
+        window.postMessage({ message:'pcpm:build', data: { cache, deps }})
     }, 200)
 
     const incrementalBuild = change => {
         updateCache(change)
-        triggerBuild(cache)
+        triggerBuild(cache, dependencies)
     }
 
     // Load the initial available files and listen for changes
@@ -100,10 +101,13 @@ export default async function initialize(cache = {}) {
     editor.on('assets:remove', onAssetRemoved)
     
     //Trigger Initial Build
-    triggerBuild(cache)
+    triggerBuild(cache, dependencies)
 
     return {
-        update: _ => _,    
+        updateDeps: deps => {
+            dependencies = deps
+            triggerBuild(cache, dependencies)    
+        },
         destroy: _ => {
 
             // Removed Asset Found/Lost Listeners

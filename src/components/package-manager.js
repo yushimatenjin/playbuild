@@ -38,9 +38,8 @@ export default class PackageManagerSettings extends Panel {
             removable: false,
             headerText: 'PACKAGES'
         })
-        console.log(editor.call('documents:get', pkg.get('id')))
-        pkg.sync.on('sync', _ => console.log('sync'))
-
+        // console.log(editor.call('documents:get', pkg.get('id')))
+        
         // this.style.position = "relative";
         let currentSearch
         const connection = editor.call('realtime:connection')
@@ -50,20 +49,38 @@ export default class PackageManagerSettings extends Panel {
         const resultsCont = new Container({ hidden: true })
         const installedPkgsCont = new Container()
 
+        let openedDoc
+        editor.on('documents:close', id => {
+            if(id !== openedDoc?.id) return
+            openedDoc = null
+            console.log('closed', id)
+        })
+        editor.on('documents:load', (doc, asset, docEntry) => {
+            if(!isPkgJson(asset)) return
+            openedDoc = doc
+            console.log('Package Opened', openedDoc.data)
+        })
+
+        
         this.append(searchInput)
         this.append(resultsCont)
         this.append(installedPkgsCont)
         
-        searchInput.style.width = 'calc(100% - 8px)'
-        installedPkgsCont.style.margin = '3px 10px'
+        searchInput.style.width = 'calc(100% - 12px)'
+        installedPkgsCont.style.margin = '3px 8px'
+        
+        const onPackageDocUpdated = data => {
+            // const data = override || packageDoc?.data
+            // console.log('onOackagesdf', data)
+            if(!data) return
 
-        const onPackageDocUpdated = _ => {
-            if(!packageDoc?.data) return
             // installedPkgsCont.clear()
-            const { dependencies } = JSON.parse(packageDoc.data)
+            const { dependencies } = JSON.parse(data)
 
             installedPkgsCont.clear()
 
+            // installedPkgsCont.append(packagePanel)
+            console.log(Object.keys(dependencies))
             Object.keys(dependencies).forEach(async (name, i) => {
                 const module = await fetch(`https://registry.npmjs.com/${name}/${dependencies[name]}`).then(r => r.json())
                 // console.log(resp)
@@ -88,11 +105,28 @@ export default class PackageManagerSettings extends Panel {
 
         // packageDoc.on('op', onPackageDocUpdated)
         // connection.get('assets', asset.get('id'))
-        onPackageDocUpdated()
+        // if(packageDoc.data) onPackageDocUpdated(packageDoc.data)
+        // else {
+        //     // editor.call('assets:contents:get', pkg, (err, value) => {
+        //     //     // console.log('sdfsdf', err, value)
+        //     // })
+        // }
+        pkg.sync.on('sync', _ => onPackageDocUpdated(packageDoc.data))
+        
+        if(!packageDoc.data){
+            packageDoc.on('load', _ => {
+                onPackageDocUpdated(packageDoc.data)
+                // packageDoc.destroy()
+            }); 
+        }else{
+            onPackageDocUpdated(packageDoc.data)
+        }
+        packageDoc.subscribe(_ => console.log('sub', _))
+
 
         const results = Array.from(new Array(MAX_RESULTS)).map(_ => {
             const info = new InfoBox({
-                icon: 'E218',
+                icon: 'E410',
                 title: '',
                 text: ''
             })
@@ -111,11 +145,24 @@ export default class PackageManagerSettings extends Panel {
             // dmp.diff_cleanupSemantic(diff);
 
             packageDoc.once('op', _ => {
-                console.log('op')
+                // console.log('op', packageDoc.data)
+                onPackageDocUpdated(packageDoc.data)
                 editor.call('realtime:send', 'doc:save:', parseInt(pkg.get('id'), 10));
             })
+
+            const op = diff2Op(diff)
+            packageDoc.submitOp(op)
+
+            // KLUDGE: Submitting an op to shareDB won't invalidate the local state.
+            // This hack/method triggers an internal update. Ideally we can hook into some local api to update
+            // console.log('has sasd', editor.call('documents:list').includes(pkg.get('id')))
+            if (openedDoc) {
+                // pkg.sync.unbind('sync', onPackageDocUpdated)
+                openedDoc.emit('op', op, false)
+                // pkg.sync.on('sync', onPackageDocUpdated)
+            }
             
-            packageDoc.submitOp(diff2Op(diff), {source:false})
+        
         }
   
         const addPackage = ({ name, version }) => {
@@ -259,9 +306,16 @@ export default class PackageManagerSettings extends Panel {
         // editor.assets.on('clear', onFileSystemUpdate)
         // noPackageWarn.on('package:created', onFileSystemUpdate)
         // onFileSystemUpdate(null)
-    }
 
-    updatePackages(pkg){
-        console.log('update', pkg)
+        this.updatePackages = pkg => {
+                console.log('update', pkg)
+            // onPackageDocUpdated(pkg)
+        }
+        // return {
+        //     updatePackages: (pkg) => {
+        //         onPackageDocUpdated(pkg)
+        //     }
+        // }
     }
+    
 }
