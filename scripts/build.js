@@ -7,7 +7,7 @@ esbuild.build({
     ...common,
     plugins: [...plugins, manifestPlugin(false)],
     minify: true,
-    mangleProps: /_$/,
+    // mangleProps: /_$/,
     // write: false,
     // out: 'out'
 }).then(async result => {
