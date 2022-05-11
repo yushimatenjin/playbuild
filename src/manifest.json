@@ -13,14 +13,14 @@
 		"service_worker": "serviceworkers.js"
 	},
 	"content_scripts": [{
-		"matches": ["https://*.playcanvas.com/editor/scene/*", "https://*.playcanvas.com/editor/code/*", "https://launch.playcanvas.com/*"],
+		"matches": ["https://playcanvas.com/editor/scene/*", "https://playcanvas.com/editor/code/*"],
         "run_at": "document_idle",
 		"js": ["contentscripts.js"]
 
 	}],
     "web_accessible_resources": [
         {
-            "resources": [ "ipcpm.js", "editor.js", "compiler.wasm" ],
+            "resources": [ "ipcpm.js", "codeeditor/editor.js", "compiler.wasm" ],
             "matches": [ "https://*/*" ]
         }
     ]

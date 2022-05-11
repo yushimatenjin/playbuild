@@ -1,5 +1,4 @@
 import NoPackageJson from './no-package';
-import { watchPkgJson } from '../utils/package'
 import { findAsset, isPkgJson } from '../utils'
 // import { InfoBox } from 'pcui'
 
@@ -29,20 +28,32 @@ export default class PackageManagerSettings extends pcui.BaseSettingsPanel {
 
         const invalidateWarning = show => {
             if (!show && noPackageWarn.parent){
-                this.remove(noPackageWarn)
-                this.append(pkgInstalledBox)
             }
             else if (show && !noPackageWarn.parent ){
                 this.append(noPackageWarn)
                 this.remove(pkgInstalledBox)
             }
         }
-  
-        watchPkgJson(pkg => invalidateWarning(!pkg))
+        
+        const onAssetRemoved = asset => {
+            if(asset && !isPkgJson(asset)) return
+            this.append(noPackageWarn)
+            this.remove(pkgInstalledBox)
+        }
+        
+        const onAssetAdded = asset => {
+            if(!isPkgJson(asset)) return
+            this.remove(noPackageWarn)
+            this.append(pkgInstalledBox)
+        }
+        
+        editor.on('assets:add', onAssetAdded)
+        editor.on('assets:remove', onAssetRemoved)
 
         this.on('parent', _ => {
-            const hasPkg = !!findAsset(isPkgJson)
-            invalidateWarning(!hasPkg)
+            const asset = findAsset(isPkgJson)
+            if (asset) onAssetAdded(asset)
+            else onAssetRemoved(asset)
         })
 
     }

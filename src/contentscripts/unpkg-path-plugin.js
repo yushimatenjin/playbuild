@@ -27,7 +27,7 @@ export default unpkgPathPlugin = (p) => {
                         }
                     } else {
                         return {
-                            errors: [{ text: `Could not resolve '${path}'. Did you add it to the Package Manager`}]
+                            errors: [{ text: `Could not resolve '${path}'. Did you add it to the Package Manager?`}]
                         }
                     }
                 })

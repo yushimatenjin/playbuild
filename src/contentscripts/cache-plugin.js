@@ -24,7 +24,11 @@ export default function cachePlugin (files) {
                     // console.log('absPath', absPath)
                     const resolvedPath = resolveModule(absPath, vfs)
                     if(resolvedPath === undefined){
-                        return { errors: [new Error(`Module '${resolve(resolveDir, path)}' not found.`)]}
+                        return { 
+                            errors: [{
+                                text: `Module '${resolve(resolveDir, path)}' not found.`
+                            }]
+                        }
                     }
                     return {
                         path: resolvedPath

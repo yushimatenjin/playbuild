@@ -1,11 +1,7 @@
-import { isWatchableFile, diff2Op, findAsset, getBuildDir, getBuildFile, isPkgJson, resolvePath, isAmmo } from "./utils"
-import * as DiffMatchPatch from 'diff-match-patch-js-browser-and-nodejs/diff_match_patch.js';
-import { debounce } from 'debounce'
-import path from 'path-browserify'
-import { watchFile } from './utils/fs'
-import { watchPkgJson } from './utils/package'
-import PackageManagerSettings from './components/package-manager'
-import initializeBundler from './codeeditor/bundler'
+import { findAsset, isPkgJson  } from '../utils'
+import { watchPkgJson } from '../utils/package'
+import PackageManagerSettings from '../components/package-manager'
+import initializeBundler from '../codeeditor/bundler'
 
 // editor.once('load', async progress => {
 
@@ -30,6 +26,7 @@ import initializeBundler from './codeeditor/bundler'
                 editor.call('layout.left').append(packagePanel)
 
             }
+            console.log('CHANGE IN PACKAGEKJSON', pkg)
             packagePanel.updatePackages(pkg)
             bundler.updateDeps(pkg.dependencies)
         }

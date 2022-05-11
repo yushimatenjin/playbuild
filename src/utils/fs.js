@@ -13,19 +13,22 @@ const resolvePath = (asset, altPath) => {
     
 export const watchFile = (asset, onUpdate) => {
     return new Promise((resolve, reject ) => {
+
+        if(!editor.isCodeEditor) reject(`'watchFile' only works in the code editor page`)
         
         const connection = editor.call('realtime:connection')
         const name = asset.get('name')
         const uid = asset.get('id')
-        console.log('Watching asset ', name, uid)
+        // console.log('Watching asset ', name, uid)
 
         // Source scripts included in the build must be excluded from PC launcher
-        const doc = connection.get('assets', asset.get('id'))
+        const doc = connection.get('assets', uid)
         doc.submitOp({ p: ['exclude'], oi:true })
         doc.submitOp({ p: ['preload'], oi:false })
 
         asset.sync.on('sync', _ => {
-            const doc = editor.call('documents:get', uid );
+            // const doc = editor.call('documents:get', uid );
+            const doc = connection.get('documents', uid)
             const key = resolvePath(asset)
             if(doc?.data) onUpdate({ key, value: doc.data })
         })

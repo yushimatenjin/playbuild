@@ -38,9 +38,7 @@ export default class PackageManagerSettings extends Panel {
             removable: false,
             headerText: 'PACKAGES'
         })
-        // console.log(editor.call('documents:get', pkg.get('id')))
-        
-        // this.style.position = "relative";
+
         let currentSearch
         const connection = editor.call('realtime:connection')
         let packageDoc = connection.get('documents', pkg.get('id'))
@@ -58,9 +56,7 @@ export default class PackageManagerSettings extends Panel {
         editor.on('documents:load', (doc, asset, docEntry) => {
             if(!isPkgJson(asset)) return
             openedDoc = doc
-            console.log('Package Opened', openedDoc.data)
         })
-
         
         this.append(searchInput)
         this.append(resultsCont)
@@ -70,35 +66,17 @@ export default class PackageManagerSettings extends Panel {
         installedPkgsCont.style.margin = '3px 8px'
         
         const onPackageDocUpdated = data => {
-            // const data = override || packageDoc?.data
-            // console.log('onOackagesdf', data)
             if(!data) return
 
-            // installedPkgsCont.clear()
             const { dependencies } = JSON.parse(data)
 
             installedPkgsCont.clear()
 
-            // installedPkgsCont.append(packagePanel)
-            console.log(Object.keys(dependencies))
             Object.keys(dependencies).forEach(async (name, i) => {
                 const module = await fetch(`https://registry.npmjs.com/${name}/${dependencies[name]}`).then(r => r.json())
-                // console.log(resp)
                 const packagePanel = new PackagePanel(module)
-                // const packagePanel = new pcui.Panel({
-                //     headerText: name,
-                //     removable: true,
-                //     collapsible: true,
-                //     collapsed: true
-                // })
-                // const info = new pcui.InfoBox({
-                //     icon: 'E218',
-                //     title: name,
-                //     text: 'SOME INFO'
-                // })
                 packagePanel.class.add('layers-settings-panel-layer-panel');
                 packagePanel.once('click:remove', _ => removePackage({ name }))
-                // packagePanel.append(info)
                 installedPkgsCont.append(packagePanel)
             })
         }
@@ -116,12 +94,12 @@ export default class PackageManagerSettings extends Panel {
         if(!packageDoc.data){
             packageDoc.on('load', _ => {
                 onPackageDocUpdated(packageDoc.data)
-                // packageDoc.destroy()
+                packageDoc.destroy()
             }); 
         }else{
             onPackageDocUpdated(packageDoc.data)
         }
-        packageDoc.subscribe(_ => console.log('sub', _))
+        packageDoc.subscribe()
 
 
         const results = Array.from(new Array(MAX_RESULTS)).map(_ => {

@@ -11,7 +11,7 @@ export default async function initialize(cache = {}, dependencies = {}) {
     const updateCache = ({ key, value }) => value ? cache[key] = value : delete cache[key]
 
     const triggerBuild = debounce((cache, deps) => {
-        console.log('build', cache, deps)
+        console.log('build', deps)
         window.postMessage({ message:'pcpm:build', data: { cache, deps }})
     }, 200)
 
@@ -35,19 +35,19 @@ export default async function initialize(cache = {}, dependencies = {}) {
         switch(data.message){
             case 'onCompiled' :
                 
-                console.log('onCompiled')
+                console.log('Compiled')
                 const buildFile = await getBuildFile(data.data)
                 const doc = connection.get('documents', buildFile.get('id'))
 
                 const save = _ => {
-                    console.log('saving', buildFile.get('id'))
+                    console.log('Saving')
                     editor.call('realtime:send', 'doc:save:', parseInt(buildFile.get('id'), 10));
                 }
 
                 const submitOp = (doc, data) => {
                     if(doc.data === data) return
                     var diff = dmp.diff_main(doc.data, data);      
-                    console.log('submitting operation', diff)
+                    console.log('Submitting OT')
                     // dmp.diff_cleanupSemantic(diff);
                     doc.once('op', _ => {
                         doc.hasPending() ? doc.once('nothing pending',  save) : save()
@@ -59,8 +59,6 @@ export default async function initialize(cache = {}, dependencies = {}) {
                 if(doc.data) submitOp(doc, data.data)
 
                 doc.once('load', _ => {
-                    // submitOp(doc, data.data)
-                    console.log('Built File loaded')
                     submitOp(doc, data.data);
                     doc.destroy()
                 })
