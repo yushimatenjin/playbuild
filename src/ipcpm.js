@@ -1,4 +1,4 @@
-// import PackageManagerSettings from './package-manager';
+import PackageManagerSettings from './components/pcpm-settings';
 import { isWatchableFile } from './utils'
 // import { watchPkgJson } from './utils/package'
 
@@ -7,6 +7,20 @@ editor.on('assets:scripts:add', asset => {
   asset.set('exclude', true)
   asset.set('preload', false)
 })
+
+const panel = new PackageManagerSettings()
+
+editor.on('attributes:beforeClear', () => {
+  panel.unlink();
+  if (panel.parent) {
+      panel.parent.remove(panel);
+  }
+});
+
+editor.on('attributes:inspect[editorSettings]', () => {
+    const root = editor.call('attributes.rootPanel');
+    if (!panel.parent) root.append(panel);
+});
 
 // console.log('watching package')
 // watchPkgJson(pkg => {
@@ -22,19 +36,7 @@ editor.on('assets:scripts:add', asset => {
 //   editor.assets.unbind('load:progress')
   
   // console.log('ATTACHING PACKAGE MANAGER')
-  // const panel = new PackageManagerSettings()
-
-  // editor.on('attributes:beforeClear', () => {
-  //   panel.unlink();
-  //   if (panel.parent) {
-  //       panel.parent.remove(panel);
-  //   }
-  // });
-
-  // editor.on('attributes:inspect[editorSettings]', () => {
-  //     const root = editor.call('attributes.rootPanel');
-  //     if (!panel.parent) root.append(panel);
-  // });
+  // 
     
   // panel.on('package:selected', ({ name, version }) => {
   

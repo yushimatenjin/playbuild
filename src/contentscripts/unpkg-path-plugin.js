@@ -1,30 +1,50 @@
+import { sep } from 'path-browserify'
 
 export default unpkgPathPlugin = (p) => {
+
+    const cache = {}
 
     let packages = p
     const updatePackages = p => (packages = p)
     const filter = /^[^\.\/]/
+    const namespace = 'http-url'
 
     return {
+        updatePackages,
         plugin: {
             name: 'unpkg-path-plugin',
             setup(build) {
 
-                build.onResolve({ filter }, (args) => {
+                build.onResolve({ filter }, ({ path }) => {
+                    const module = path.split(sep)[0]
+                    const subpath = path.split(sep).slice(1).join(sep)
+                    const version = packages[module]
+                    
+                    if(!!version){
+                        return { 
+                            path: `https://cdn.skypack.dev/${module}@${version}${subpath ? '/' + subpath : ''}`,
+                            namespace
+                        }
+                    } else {
+                        return {
+                            errors: [{ text: `Could not resolve '${path}'. Did you add it to the Package Manager`}]
+                        }
+                    }
+                })
 
-                    const version = packages[args.path]
+                build.onResolve({ filter: /.*/, namespace }, ({ importer, path }) => {
+                    return {
+                        path: new URL(path, importer).toString(),
+                        namespace,
+                    }
+                })
 
-                    if(!version) return { errors: [{
-                        text: `Module '${args.path}' was not found. Are you sure it was installed?`
-                        // location: Location | null;
-                        // detail: any; // The original error from a JavaScript plugin, if applicable
-                    }]}
 
-                    return { path: new URL(args.path + "@" + version, "https://unpkg.com/").href, namespace: 'module' };
-                });
+                build.onLoad({ filter: /.*/, namespace }, async ({ path }) => {
+                    
+                    const contents = cache[path] || await fetch(path).then(resp => resp.arrayBuffer())
+                    cache[path] = contents
 
-                build.onLoad({ filter, namespace: 'module' }, async (args) => {
-                    const contents = await fetch(args.path).then(resp => resp.arrayBuffer())
                     return {
                         loader: "js",
                         contents: new Uint8Array(contents),

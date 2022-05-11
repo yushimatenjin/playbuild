@@ -23,10 +23,10 @@ export const watchPkgJson = async onChange => {
         return watchJson(pkg, onChange)
     }
     
-    const onAssetAdded = async asset => {
+    const onAssetAdded = asset => {
         if(isPkgJson(asset)){
             editor.unbind('assets:add', onAssetAdded)
-            const pkg = await watch(asset)
+            const pkg = watch(asset)
             onChange(pkg)
         }
     }
