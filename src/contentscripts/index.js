@@ -51,7 +51,6 @@ const build = async (files, deps) => {
             },
         })
         console.timeEnd('Full Build')
-        console.lof(errors, warnings)
         incrementalBuild = rebuild
 
         if(!errors.length) window.postMessage({ message: 'onCompiled', data: outputFiles[0].text })

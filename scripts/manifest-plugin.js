@@ -29,7 +29,7 @@ export default debug => ({
             const manifest = JSON.parse(source)
 
             if(!debug) {
-                manifest.permissions = [] // set the array to emppty for production
+                delete manifest.permissions // set the array to emppty for production
             }
 
             const content = JSON.stringify(manifest)

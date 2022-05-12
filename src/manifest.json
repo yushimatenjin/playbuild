@@ -21,12 +21,9 @@
 		"matches": ["https://playcanvas.com/editor/scene/*", "https://playcanvas.com/editor/code/*"],
         "run_at": "document_idle",
 		"js": ["contentscripts.js"]
-
 	}],
-    "web_accessible_resources": [
-        {
-            "resources": [ "ipcpm.js", "codeeditor/editor.js", "compiler.wasm" ],
-            "matches": [ "https://*/*" ]
-        }
-    ]
+    "web_accessible_resources": [{
+		"resources": [ "ipcpm.js", "codeeditor/editor.js", "compiler.wasm" ],
+		"matches": [ "https://*/*" ]
+	}]
 }
