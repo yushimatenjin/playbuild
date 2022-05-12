@@ -3,8 +3,7 @@
   <img src="./static/icon.png" alt="PCPM" width="200">
   <br>
   <h3 align="center">A Package Manager for PlayCanvas</h3>
-  <br>
-  <br>
+
 </div>
 
 <!-- <p align="center"> -->
