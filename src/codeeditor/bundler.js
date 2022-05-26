@@ -112,9 +112,19 @@ export default async function initialize(cache = {}, dependencies = {}) {
             editor.on('assets:add', onAssetAddded)
             editor.on('assets:remove', onAssetRemoved)
 
+            editor.call('assets:list')
+                .filter(isWatchableFile)
+                .forEach(asset => {
+                    asset.sync.unbind('sync')
+                    asset.unbind('name:set')
+                    asset.unbind('path:set')
+                    asset.unbind('file.filename:set')
+                })
+
             // Remove isolated world message listener
             window.addEventListener('message', onWindowPostMessage )
 
+            // notify contentscript 
             window.postMessage({ message:'pcpm:destroy'})
         }
     }
