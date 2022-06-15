@@ -33,7 +33,7 @@ export default async function initialize(cache = {}, dependencies = {}) {
     */
     const onWindowPostMessage =  async ({ data }) => {
         switch(data.message){
-            case 'onCompiled' :
+            case 'pcpm:build:done' :
                 
                 console.log('Compiled')
                 const buildFile = await getBuildFile(data.data)

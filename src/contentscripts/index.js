@@ -76,7 +76,7 @@ const rebuild = async ({ cache, deps }) => {
             const { outputFiles, errors } = await incrementalBuild()
             console.timeEnd('Incremental Build')
 
-            if(!errors.length) window.postMessage({ message: 'onCompiled', data: outputFiles[0].text })
+            if(!errors.length) window.postMessage({ message: 'pcpm:build:done', data: outputFiles[0].text })
             else window.postMessage({ message: 'onError', data: errors })
         }
 
@@ -90,17 +90,28 @@ window.onmessage = ({ data }) => {
     switch(data?.message){
         case 'pcpm:build' :
             rebuild(data.data)
+            chrome.runtime.sendMessage(data)
+            break
+        case 'pcpm:build:done' :
+        case 'pcpm:editor-loaded' :
+            chrome.runtime.sendMessage(data)
             break
         default: break
     }
 }
 
+chrome.runtime.onMessage.addListener(({ message, data }) => {
+    if (message === "pcpm:enabled") {
+        window.postMessage({ message, data })
+    }
+})
+
 
 // inject script
-const isEditor = location.href.includes('/editor/code')
-const isLauncher = !isEditor && location.href.includes('://launch.playcanvas.com/')
+const isCodeEditor = location.href.includes('/editor/code')
+// const isLauncher = !isEditor && location.href.includes('://launch.playcanvas.com/')
 var s = document.createElement('script');
-s.src = chrome.runtime.getURL(isEditor ? './codeeditor/editor.js' : 'ipcpm.js');
+s.src = chrome.runtime.getURL(isCodeEditor ? './codeeditor/editor.js' : 'ipcpm.js');
 s.onload = function() {
     this.remove();
 };

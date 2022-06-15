@@ -90,6 +90,9 @@ export const getBuildDir = _ => {
   })
 }
 
+/*
+  UPSERT OP on build file. Fetches the build and creates one if none exists
+*/
 export const getBuildFile = (content = BANNER) => {
 
   return new Promise(async (resolve, reject) => {
@@ -114,7 +117,7 @@ export const getBuildFile = (content = BANNER) => {
       noSelect: true, // This is ignored
       callback: _ => {
 
-        // KLUDGE - Currently the create:script ignores the noSelect param so we have a dodgy timeout here (racecondition?)
+        // KLUDGE - Currently the create:script ignores `noSelect` so we have a dodgy timeout here to deselect
         setTimeout(function () {
           editor.call('tabs:temp:lock');
           selectedAsset ? editor.call('files:select', selectedAsset.get('id')) : editor.call('files:deselectAll')
