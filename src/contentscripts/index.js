@@ -42,8 +42,8 @@ const build = async (files, deps) => {
             platform: 'browser',
             external: ['fs', 'path'],
             // logLevel: 'silent',
-            sourcemap: 'inline',
-            sourceRoot: 'https://launch.playcanvas.com/api/assets/files/',
+            // sourcemap: 'inline',
+            // sourceRoot: 'https://launch.playcanvas.com/api/assets/files/',
             write: false,
             incremental: true,
             banner: {
