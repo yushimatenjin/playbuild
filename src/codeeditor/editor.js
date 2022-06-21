@@ -11,10 +11,11 @@ window.addEventListener('message', async ({ data }) => {
             editor.call('status:log', `PCPM is compiling the scripts...`)
             break
         case 'pcpm:build:done' :
-            editor.call('status:log', `PCPM compiled ✔`)
+            editor.call('status:log', `Code compiled ✔`)
             break
         case 'pcpm:build:error' :
-            editor.call('status:error', `PCPM failed to compile your code ❌`)
+            const error = data.data[0]
+            editor.call('status:error', `❌ Error ${error.text} @ ${error.location.file}:${error.location.line}:${error.location.column}`)
             break
         case 'pcpm:enabled' :
   
