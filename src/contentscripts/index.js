@@ -58,7 +58,6 @@ const build = async (files, deps) => {
 
     } catch(e) {
         console.timeEnd('Full Build')
-        // console.warn(e)
     }
     
 }
@@ -90,7 +89,6 @@ let enabled = false
 chrome.runtime.onMessage.addListener(({ message, data }) => {
     if (message === "pcpm:enabled") {
         enabled = data
-        console.log('enableddd', data)
         window.postMessage({ message, data })
     }
 })

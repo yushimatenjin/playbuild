@@ -40,6 +40,11 @@ const syncBadge = async projectId => {
     const storage = await chrome.storage.sync.get([projectId])
     const storageExists = Object.keys(storage).length > 0
     setBadge(storageExists)
+    
+    // update the content scripts
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+        chrome.tabs.sendMessage(tabs[0].id, {message: "pcpm:enabled", data: !storageExists })
+    })
 }
 
 chrome.runtime.onInstalled.addListener(() => {
@@ -47,13 +52,13 @@ chrome.runtime.onInstalled.addListener(() => {
     chrome.runtime.onMessage.addListener(({ message, data }) => {
         if (message === "pcpm:editor-loaded") {
             syncBadge(data.id.toString())
-        } else if (message === "pcpm:build"){
+        } /* else if (message === "pcpm:build"){
             chrome.action.setBadgeText({ text: '...' })
         } else if (message === "pcpm:build:done"){
             chrome.action.setBadgeText({ text: '✔' })
         } else if (message === "pcpm:build:error"){
             chrome.action.setBadgeText({ text: '❌' })
-        }
+        } */
     })
 
     if(DEBUG) {
