@@ -98,6 +98,7 @@ export const getBuildFile = (content = BANNER) => {
   return new Promise(async (resolve, reject) => {
 
     const buildFile = findAsset(isBuildFile)
+    
     if(buildFile) {
       resolve(buildFile)
       return

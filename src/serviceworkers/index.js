@@ -47,6 +47,10 @@ chrome.runtime.onInstalled.addListener(() => {
     chrome.runtime.onMessage.addListener(({ message, data }) => {
         if (message === "pcpm:editor-loaded") {
             syncBadge(data.id.toString())
+        } else if (message === "pcpm:build"){
+            chrome.action.setBadgeText({ detail: 'building'})
+        } else if (message === "pcpm:build"){
+            
         }
     })
 

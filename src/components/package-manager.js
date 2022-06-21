@@ -31,7 +31,7 @@ const ATTRIBUTES = [
         
 export default class PackageManagerSettings extends Panel {
 
-    constructor(pkg){
+    constructor(){
         super({
             collapsed: false,
             collapsible: true,
@@ -40,46 +40,46 @@ export default class PackageManagerSettings extends Panel {
         })
 
         let currentSearch
-        const connection = editor.call('realtime:connection')
-        let packageDoc = connection.get('documents', pkg.get('id'))
-        const dmp = new DiffMatchPatch.diff_match_patch()
+        // const connection = editor.call('realtime:connection')
+        // let packageDoc = connection.get('documents', pkg.get('id'))
+        // const dmp = new DiffMatchPatch.diff_match_patch()
         const searchInput = new TextInput({keyChange: true, placeholder: 'Add Dependency'})
         const resultsCont = new Container({ hidden: true })
-        const installedPkgsCont = new Container()
+        this.installedPkgsCont = new Container()
 
-        let openedDoc
-        editor.on('documents:close', id => {
-            if(id !== openedDoc?.id) return
-            openedDoc = null
-            console.log('closed', id)
-        })
-        editor.on('documents:load', (doc, asset, docEntry) => {
-            if(!isPkgJson(asset)) return
-            openedDoc = doc
-        })
+        // let openedDoc
+        // editor.on('documents:close', id => {
+        //     if(id !== openedDoc?.id) return
+        //     openedDoc = null
+        //     console.log('closed', id)
+        // })
+        // editor.on('documents:load', (doc, asset, docEntry) => {
+        //     if(!isPkgJson(asset)) return
+        //     openedDoc = doc
+        // })
         
         this.append(searchInput)
         this.append(resultsCont)
-        this.append(installedPkgsCont)
+        this.append(this.installedPkgsCont)
         
         searchInput.style.width = 'calc(100% - 12px)'
-        installedPkgsCont.style.margin = '3px 8px'
+        this.installedPkgsCont.style.margin = '3px 8px'
         
-        const onPackageDocUpdated = data => {
-            if(!data) return
+        // const onPackageDocUpdated = data => {
+        //     if(!data) return
 
-            const { dependencies } = JSON.parse(data)
+        //     const dependencies = JSON.parse(data)
 
-            installedPkgsCont.clear()
+        //     installedPkgsCont.clear()
 
-            Object.keys(dependencies).forEach(async (name, i) => {
-                const module = await fetch(`https://registry.npmjs.com/${name}/${dependencies[name]}`).then(r => r.json())
-                const packagePanel = new PackagePanel(module)
-                packagePanel.class.add('layers-settings-panel-layer-panel');
-                packagePanel.once('click:remove', _ => removePackage({ name }))
-                installedPkgsCont.append(packagePanel)
-            })
-        }
+        //     Object.keys(dependencies).forEach(async (name, i) => {
+        //         const module = await fetch(`https://registry.npmjs.com/${name}/${dependencies[name]}`).then(r => r.json())
+        //         const packagePanel = new PackagePanel(module)
+        //         packagePanel.class.add('layers-settings-panel-layer-panel');
+        //         packagePanel.once('click:remove', _ => removePackage({ name }))
+        //         installedPkgsCont.append(packagePanel)
+        //     })
+        // }
 
         // packageDoc.on('op', onPackageDocUpdated)
         // connection.get('assets', asset.get('id'))
@@ -89,17 +89,17 @@ export default class PackageManagerSettings extends Panel {
         //     //     // console.log('sdfsdf', err, value)
         //     // })
         // }
-        pkg.sync.on('sync', _ => onPackageDocUpdated(packageDoc.data))
+        // pkg.sync.on('sync', _ => onPackageDocUpdated(packageDoc.data))
         
-        if(!packageDoc.data){
-            packageDoc.on('load', _ => {
-                onPackageDocUpdated(packageDoc.data)
-                packageDoc.destroy()
-            }); 
-        }else{
-            onPackageDocUpdated(packageDoc.data)
-        }
-        packageDoc.subscribe()
+        // if(!packageDoc.data){
+        //     packageDoc.on('load', _ => {
+        //         onPackageDocUpdated(packageDoc.data)
+        //         packageDoc.destroy()
+        //     }); 
+        // }else{
+        //     onPackageDocUpdated(packageDoc.data)
+        // }
+        // packageDoc.subscribe()
 
 
         const results = Array.from(new Array(MAX_RESULTS)).map(_ => {
@@ -113,53 +113,55 @@ export default class PackageManagerSettings extends Panel {
             return info
         })
 
-        const updatePackageJson = newPkg => {
+        // const updatePackageJson = newPkg => {
 
-            if(!packageDoc) return
+        //     if(!packageDoc) return
 
-            // Optimistically render the local packages assuming the operation succeeds
-            // Find the diff between the two
-            var diff = dmp.diff_main(packageDoc.data, JSON.stringify(newPkg, null, 4));      
-            // dmp.diff_cleanupSemantic(diff);
+        //     // Optimistically render the local packages assuming the operation succeeds
+        //     // Find the diff between the two
+        //     var diff = dmp.diff_main(packageDoc.data, JSON.stringify(newPkg, null, 4));      
+        //     // dmp.diff_cleanupSemantic(diff);
 
-            packageDoc.once('op', _ => {
-                // console.log('op', packageDoc.data)
-                onPackageDocUpdated(packageDoc.data)
-                editor.call('realtime:send', 'doc:save:', parseInt(pkg.get('id'), 10));
-            })
+        //     packageDoc.once('op', _ => {
+        //         // console.log('op', packageDoc.data)
+        //         onPackageDocUpdated(packageDoc.data)
+        //         editor.call('realtime:send', 'doc:save:', parseInt(pkg.get('id'), 10));
+        //     })
 
-            const op = diff2Op(diff)
-            packageDoc.submitOp(op)
+        //     const op = diff2Op(diff)
+        //     packageDoc.submitOp(op)
 
-            // KLUDGE: Submitting an op to shareDB won't invalidate the local state.
-            // This hack/method triggers an internal update. Ideally we can hook into some local api to update
-            // console.log('has sasd', editor.call('documents:list').includes(pkg.get('id')))
-            if (openedDoc) {
-                // pkg.sync.unbind('sync', onPackageDocUpdated)
-                openedDoc.emit('op', op, false)
-                // pkg.sync.on('sync', onPackageDocUpdated)
-            }
-            
-        
-        }
+        //     // KLUDGE: Submitting an op to shareDB won't invalidate the local state.
+        //     // This hack/method triggers an internal update. Ideally we can hook into some local api to update
+        //     // console.log('has sasd', editor.call('documents:list').includes(pkg.get('id')))
+        //     if (openedDoc) {
+        //         // pkg.sync.unbind('sync', onPackageDocUpdated)
+        //         openedDoc.emit('op', op, false)
+        //         // pkg.sync.on('sync', onPackageDocUpdated)
+        //     }
+        // }
   
         const addPackage = ({ name, version }) => {
             
-            const localPkg = JSON.parse(packageDoc.data)
-            localPkg.dependencies = { ...localPkg.dependencies, [name]: version }
+            // const localPkg = JSON.parse(packageDoc.data)
+            // const l
+            // localPkg.dependencies = { ...localPkg.dependencies, [name]: version }
             
-            updatePackageJson(localPkg)
+            this.emit('add', {[name]: version})
+            // this.emit('update', { ...localPkg.dependencies, [name]: version })
+            // updatePackageJson(localPkg)
         }
 
         const removePackage = ({ name }) => {
-
-            const localPkg = JSON.parse(packageDoc.data)
-            delete localPkg.dependencies?.[name]
             
-            updatePackageJson(localPkg)
+            // const localPkg = JSON.parse(packageDoc.data)
+            // const pkg = { ...locaPkg }
+            // delete pkg.dependencies[name]
+            
+            this.emit('remove', name )
+            // this.emit('update', pkg )
+            // updatePackageJson(localPkg)
         }
-
-        const showInstalledPackages = _ => console.log("INSTALLED PACKAGES CALLED")
 
         searchInput.on('change', async searchTerm => {
             if(currentSearch === searchTerm) return
@@ -285,15 +287,24 @@ export default class PackageManagerSettings extends Panel {
         // noPackageWarn.on('package:created', onFileSystemUpdate)
         // onFileSystemUpdate(null)
 
-        this.updatePackages = pkg => {
-                console.log('update', pkg)
-            // onPackageDocUpdated(pkg)
-        }
-        // return {
-        //     updatePackages: (pkg) => {
-        //         onPackageDocUpdated(pkg)
-        //     }
-        // }
     }
-    
+
+    updatePackages (deps) {
+
+        if(!deps) return
+
+        this.installedPkgsCont.clear()
+
+        Object.keys(deps).forEach(async (name, i) => {
+            const module = await fetch(`https://registry.npmjs.com/${name}/${deps[name]}`).then(r => r.json())
+            const packagePanel = new PackagePanel(module)
+            packagePanel.class.add('layers-settings-panel-layer-panel');
+            packagePanel.on('click:remove', _ => {
+                console.log('this remove', 'removing')
+                this.emit('remove', name )
+            })
+            this.installedPkgsCont.append(packagePanel)
+        })
+    }
+
 }

@@ -47,7 +47,7 @@ export default async function initialize(cache = {}, dependencies = {}) {
                 const submitOp = (doc, data) => {
                     if(doc.data === data) return
                     var diff = dmp.diff_main(doc.data, data);      
-                    console.log('Submitting OT')
+                    // console.log('Submitting OT')
                     // dmp.diff_cleanupSemantic(diff);
                     doc.once('op', _ => {
                         doc.hasPending() ? doc.once('nothing pending',  save) : save()

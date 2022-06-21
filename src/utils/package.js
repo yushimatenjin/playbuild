@@ -13,7 +13,6 @@ export const watchPkgJson = async onChange => {
     const onAssetRemoved = asset => {
         if(!isPkgJson(asset)) return
         editor.unbind('assets:remove', onAssetRemoved)
-        console.log('pkg removed!')
         editor.on('assets:add', onAssetAdded)
         onChange(null)
     }
@@ -33,7 +32,8 @@ export const watchPkgJson = async onChange => {
     
     const packageJson = findAsset(isPkgJson)
     if(packageJson) {
-        onChange(watch(packageJson))
+        const result = await watch(packageJson)
+        onChange(result)
     }
     else editor.on('assets:add', onAssetAdded)
 }
@@ -59,6 +59,42 @@ export const createPackageJson = _ => {
             }
         };
 
-        editor.call('assets:create', assetDef, _ => resolve(pkg), true);
+        editor.call('assets:create', assetDef, _ => {
+
+            // Hack to deselect the package json if created here
+            setTimeout(function () {
+                editor.call('tabs:temp:lock');
+                editor.call('editor:command:close');
+                editor.call('tabs:temp:unlock');
+            }, 10 )
+
+            resolve(pkg)
+        });
+    })
+}
+
+/*
+  UPSERT OP on package.json file. Fetches and creates one if none exists
+*/
+export const getPkgJson = _ => {
+
+    return new Promise(async resolve => {
+        let pkg = findAsset(isPkgJson)
+
+        if (!pkg){
+            await createPackageJson()
+            pkg = findAsset(isPkgJson)
+        }
+
+        const connection = editor.call("realtime:connection");
+        const packageDoc = connection.get("documents", pkg.get("id"));
+
+        if(packageDoc.data) resolve(packageDoc)
+        else {
+            packageDoc.on('load', _ => {
+                resolve(packageDoc)
+            })
+            packageDoc.subscribe()
+        }
     })
 }
