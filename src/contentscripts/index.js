@@ -53,8 +53,8 @@ const build = async (files, deps) => {
         console.timeEnd('Full Build')
         incrementalBuild = rebuild
 
-        if(!errors.length) window.postMessage({ message: 'onCompiled', data: outputFiles[0].text })
-        else window.postMessage({ message: 'onError', data: errors })
+        if(!errors.length) window.postMessage({ message: 'pcpm:build:done', data: outputFiles[0].text })
+        else window.postMessage({ message: 'pcpm:build:error', data: errors })
 
     } catch(e) {
         console.timeEnd('Full Build')
@@ -77,32 +77,37 @@ const rebuild = async ({ cache, deps }) => {
             console.timeEnd('Incremental Build')
 
             if(!errors.length) window.postMessage({ message: 'pcpm:build:done', data: outputFiles[0].text })
-            else window.postMessage({ message: 'onError', data: errors })
+            else window.postMessage({ message: 'pcpm:build:error', data: errors })
         }
 
     } catch(e) {
         console.timeEnd('Incremental Build')
-        // console.warn(e)
     }
 }
 
-window.onmessage = ({ data }) => {
+// From the chrome extension
+let enabled = false
+chrome.runtime.onMessage.addListener(({ message, data }) => {
+    if (message === "pcpm:enabled") {
+        enabled = data
+        console.log('enableddd', data)
+        window.postMessage({ message, data })
+    }
+})
+
+
+// From the page/window
+window.addEventListener('message', ({ data }) => {
     switch(data?.message){
         case 'pcpm:build' :
+            if(!enabled) return
             rebuild(data.data)
-            chrome.runtime.sendMessage(data)
-            break
         case 'pcpm:build:done' :
+        case 'pcpm:build:error' :
         case 'pcpm:editor-loaded' :
             chrome.runtime.sendMessage(data)
             break
         default: break
-    }
-}
-
-chrome.runtime.onMessage.addListener(({ message, data }) => {
-    if (message === "pcpm:enabled") {
-        window.postMessage({ message, data })
     }
 })
 

@@ -11,7 +11,6 @@ export default async function initialize(cache = {}, dependencies = {}) {
     const updateCache = ({ key, value }) => value ? cache[key] = value : delete cache[key]
 
     const triggerBuild = debounce((cache, deps) => {
-        console.log('build', deps)
         window.postMessage({ message:'pcpm:build', data: { cache, deps }})
     }, 200)
 
@@ -35,13 +34,12 @@ export default async function initialize(cache = {}, dependencies = {}) {
         switch(data.message){
             case 'pcpm:build:done' :
                 
-                console.log('Compiled')
                 const buildFile = await getBuildFile(data.data)
                 const doc = connection.get('documents', buildFile.get('id'))
 
                 const save = _ => {
-                    console.log('Saving')
                     editor.call('realtime:send', 'doc:save:', parseInt(buildFile.get('id'), 10));
+                    // console.log('Saving')
                 }
 
                 const submitOp = (doc, data) => {
@@ -65,9 +63,6 @@ export default async function initialize(cache = {}, dependencies = {}) {
 
                 doc.subscribe()
 
-                break;
-            case 'onError' :
-                console.log('onError  ', data.data)
                 break;
             default : break
         }
@@ -122,7 +117,7 @@ export default async function initialize(cache = {}, dependencies = {}) {
                 })
 
             // Remove isolated world message listener
-            window.addEventListener('message', onWindowPostMessage )
+            window.removeEventListener('message', onWindowPostMessage )
 
             // notify contentscript 
             window.postMessage({ message:'pcpm:destroy'})

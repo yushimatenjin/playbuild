@@ -4,10 +4,44 @@ import PackageManagerSettings from '../components/package-manager'
 import initializeBundler from '../codeeditor/bundler'
 import * as DiffMatchPatch from 'diff-match-patch-js-browser-and-nodejs/diff_match_patch.js';
 
+let bundler
+window.addEventListener('message', async ({ data }) => {
+    switch(data?.message){
+        case 'pcpm:build' :
+            editor.call('status:log', `PCPM is compiling the scripts...`)
+            break
+        case 'pcpm:build:done' :
+            editor.call('status:log', `PCPM compiled ✔`)
+            break
+        case 'pcpm:build:error' :
+            editor.call('status:error', `PCPM failed to compile your code ❌`)
+            break
+        case 'pcpm:enabled' :
+  
+            const enabled = data.data
+
+            if(enabled){
+                bundler = await initializeBundler()
+            } else if(bundler) {
+                bundler.destroy()
+                bundler = null
+            }
+
+            editor.call('status:log', `PCPM is ${enabled ? 'enabled' : 'disabled'}`)
+    
+            // if(enabled){
+            //   editor.on('assets:scripts:add', onScriptAdded)
+            // } else {
+            //   editor.unbind('assets:scripts:add', onScriptAdded)
+            // }
+    
+            break
+        default: break
+    }
+})
 
 editor.once('realtime:authenticated', _ => {
 
-    let bundler = null
     const dmp = new DiffMatchPatch.diff_match_patch()
     const packagePanel = new PackageManagerSettings(/*findAsset(isPkgJson)*/)
     editor.call('layout.left').append(packagePanel)
@@ -112,26 +146,7 @@ editor.once('realtime:authenticated', _ => {
         })
     })
 
-    window.addEventListener('message', async ({ data }) => {
-        switch(data?.message){
-        case 'pcpm:build' :
-            // rebuild(data.data)
-            break
-        case 'pcpm:enabled' :
-    
-            const enabled = data.data
-    
-            if(enabled){
-                bundler = await initializeBundler()
-            } else {
-                bundler.destroy()
-                bundler = null
-            }
-    
-            break
-        default: break
-        }
-    })
+    window.postMessage({ message: 'pcpm:editor-loaded', data: window.config.project })
 })
 
 // editor.once('load', async progress => {

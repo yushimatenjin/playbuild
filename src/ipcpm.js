@@ -1,19 +1,19 @@
-import PackageManagerSettings from './components/pcpm-settings';
+// import PackageManagerSettings from './components/pcpm-settings';
 import { isWatchableFile } from './utils'
 
-const panel = new PackageManagerSettings()
+// const panel = new PackageManagerSettings()
 
-editor.on('attributes:beforeClear', () => {
-  panel.unlink();
-  if (panel.parent) {
-      panel.parent.remove(panel);
-  }
-});
+// editor.on('attributes:beforeClear', () => {
+//   panel.unlink();
+//   if (panel.parent) {
+//       panel.parent.remove(panel);
+//   }
+// });
 
-editor.on('attributes:inspect[editorSettings]', () => {
-    const root = editor.call('attributes.rootPanel');
-    if (!panel.parent) root.append(panel);
-});
+// editor.on('attributes:inspect[editorSettings]', () => {
+//     const root = editor.call('attributes.rootPanel');
+//     if (!panel.parent) root.append(panel);
+// });
 
 const onScriptAdded = asset => {
   if(!isWatchableFile(asset)) return
@@ -29,13 +29,13 @@ window.addEventListener('message', ({ data }) => {
     case 'pcpm:enabled' :
 
       const enabled = data.data
-      panel.compilerEnabled = enabled
+      // panel.compilerEnabled = enabled
       console.log('pcpm:enabled', data.data)
 
       if(enabled){
         editor.on('assets:scripts:add', onScriptAdded)
       } else {
-        editor.off('assets:scripts:add', onScriptAdded)
+        editor.unbind('assets:scripts:add', onScriptAdded)
       }
 
       break

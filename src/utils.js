@@ -108,7 +108,7 @@ export const getBuildFile = (content = BANNER) => {
 
     const buildDir = await getBuildDir()
 
-    const selectedAsset = editor.call('assets:selected')?.[0]
+    // const selectedAsset = editor.call('assets:selected')?.[0]
 
     editor.call('assets:create:script', {
       filename: BUILD_FILE_NAME,
@@ -119,11 +119,12 @@ export const getBuildFile = (content = BANNER) => {
       callback: _ => {
 
         // KLUDGE - Currently the create:script ignores `noSelect` so we have a dodgy timeout here to deselect
-        setTimeout(function () {
+        // setTimeout(function () {
           editor.call('tabs:temp:lock');
-          selectedAsset ? editor.call('files:select', selectedAsset.get('id')) : editor.call('files:deselectAll')
+          // selectedAsset ? editor.call('files:select', selectedAsset.get('id')) : editor.call('files:deselectAll')
+          editor.call('editor:command:close');
           editor.call('tabs:temp:unlock');
-        }, 20 )
+        // }, 20 )
 
         resolve(findAsset(isBuildFile))
       }
