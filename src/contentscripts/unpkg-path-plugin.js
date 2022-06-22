@@ -22,7 +22,7 @@ export default unpkgPathPlugin = (p) => {
                     
                     if(!!version){
                         return { 
-                            path: `https://cdn.skypack.dev/${module}@${version}${subpath ? '/' + subpath : ''}`,
+                            path: `https://esm.sh/${module}@${version}${subpath ? '/' + subpath : ''}`,
                             namespace
                         }
                     } else {
@@ -46,7 +46,7 @@ export default unpkgPathPlugin = (p) => {
                     cache[path] = contents
 
                     return {
-                        loader: "js",
+                        loader: "jsx",
                         contents: new Uint8Array(contents),
                     };
                 });
