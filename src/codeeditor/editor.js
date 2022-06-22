@@ -11,7 +11,7 @@ window.addEventListener('message', async ({ data }) => {
             editor.call('status:log', `Compiling scripts...`)
             break
         case 'pcpm:build:done' :
-            editor.call('status:log', `Code compiled ✔`)
+            editor.call('status:log', `✔️ Code compiled`)
             break
         case 'pcpm:build:error' :
             const error = data.data[0]
@@ -43,112 +43,101 @@ window.addEventListener('message', async ({ data }) => {
 
 editor.once('assets:load', _ => {
 
-    const dmp = new DiffMatchPatch.diff_match_patch()
-    const packagePanel = new PackageManagerSettings(/*findAsset(isPkgJson)*/)
-    editor.call('layout.left').append(packagePanel)
+    const init = async pkg => {
 
-    let openedDoc
-    editor.on('documents:close', id => {
-        if(id !== openedDoc?.id) return
-        openedDoc = null
-    })
+        const dmp = new DiffMatchPatch.diff_match_patch()
+        const packagePanel = new PackageManagerSettings()
+        editor.call('layout.left').append(packagePanel)
 
-    editor.on('documents:load', (doc, asset) => {
-        if(!isPkgJson(asset)) return
-        openedDoc = doc
-    })
+        if(pkg){
+            bundler = await initializeBundler()
+        }
 
-    const getOperationalTransform = (previousState, newState) => {
-        const diff = dmp.diff_main(previousState, newState);      
-        // dmp.diff_cleanupSemantic(diff);
-        return diff2Op(diff)
+        packagePanel.updatePackages(pkg?.dependencies)
+        bundler?.updateDeps(pkg?.dependencies, false) // update deps but do not build
+
+        let openedDoc
+        editor.on('documents:close', id => {
+            if(id !== openedDoc?.id) return
+            openedDoc = null
+        })
+
+        editor.on('documents:load', (doc, asset) => {
+            if(!isPkgJson(asset)) return
+            openedDoc = doc
+        })
+
+        const getOperationalTransform = (previousState, newState) => {
+            const diff = dmp.diff_main(previousState, newState);      
+            // dmp.diff_cleanupSemantic(diff);
+            return diff2Op(diff)
+        }
+
+        packagePanel.on('add', async newPackage => {
+            const packageDoc = await getPkgJson() // find and create a pkg.json if none exist
+            packageDoc.once('op', _ => {
+                editor.call('realtime:send', 'doc:save:', parseInt(packageDoc.id, 10));
+            })
+
+            const data = JSON.parse(packageDoc.data)
+            const op = getOperationalTransform(
+                packageDoc.data, 
+                JSON.stringify({ 
+                    ...data,
+                    dependencies:{
+                        ...data.dependencies,
+                        ...newPackage 
+                    }
+                }, null, 4)
+            )
+
+            packageDoc.submitOp(op)
+
+            findAsset(isPkgJson).sync.emit('sync', op);
+            packageDoc.emit('op', op, false)
+        })
+
+        packagePanel.on('remove', async removedPackageName => {
+            const packageAsset = findAsset(isPkgJson)
+            if(!packageAsset) return 
+
+            const packageDoc = await getPkgJson()
+            
+            packageDoc.once('op', _ => {
+                editor.call('realtime:send', 'doc:save:', parseInt(packageDoc.id, 10));
+            })
+
+            const data = JSON.parse(packageDoc.data)
+            if(!data.dependencies[removedPackageName]) return
+            delete data.dependencies[removedPackageName]
+
+            const op = getOperationalTransform(packageDoc.data, JSON.stringify(data, null, 4))
+            packageDoc.submitOp(op)
+
+            // packageAsset.sync.emit('sync', op);
+            packageDoc.emit('op', op, false)
+        })
+
+        // Watch for any updates to the package.json
+        watchPkgJson(async pkg => {
+            packagePanel.updatePackages(pkg?.dependencies)
+            bundler?.updateDeps(pkg?.dependencies)
+        })
+
+        window.postMessage({ message: 'pcpm:editor-loaded', data: window.config.project })
+        window.postMessage({message: "pcpm:enabled", data: true })
     }
 
-    packagePanel.on('add', async newPackage => {
-        const packageDoc = await getPkgJson() // find and create a pkg.json if none exist
-        packageDoc.once('op', _ => {
-            editor.call('realtime:send', 'doc:save:', parseInt(packageDoc.id, 10));
+    
+    const pkgJson = findAsset(isPkgJson)
+    if(pkgJson) {
+        editor.call('assets:contents:get', findAsset(isPkgJson), (err, value) => {
+            if(err) return
+            init(JSON.parse(value))
         })
-
-        const data = JSON.parse(packageDoc.data)
-        const op = getOperationalTransform(
-            packageDoc.data, 
-            JSON.stringify({ 
-                ...data,
-                dependencies:{
-                    ...data.dependencies,
-                    ...newPackage 
-                }
-            }, null, 4)
-        )
-
-        packageDoc.submitOp(op)
-
-        findAsset(isPkgJson).sync.emit('sync', op);
-        packageDoc.emit('op', op, false)
-    })
-
-    packagePanel.on('remove', async removedPackageName => {
-        const packageAsset = findAsset(isPkgJson)
-        if(!packageAsset) return 
-
-        const packageDoc = await getPkgJson()
-        
-        packageDoc.once('op', _ => {
-            console.log('save')
-            editor.call('realtime:send', 'doc:save:', parseInt(packageDoc.id, 10));
-        })
-
-        const data = JSON.parse(packageDoc.data)
-        if(!data.dependencies[removedPackageName]) return
-        delete data.dependencies[removedPackageName]
-
-        const op = getOperationalTransform(packageDoc.data, JSON.stringify(data, null, 4))
-        packageDoc.submitOp(op)
-
-        packageAsset.sync.emit('sync', op);
-        packageDoc.emit('op', op, false)
-    })
-
-    // packagePanel.on('update', async newPkg => {
-
-    //     // if(!packageDoc) return
-    //     const packageDoc = await getPkgJson()
-
-    //     // Optimistically render the local packages assuming the operation succeeds
-
-    //     // Save doc on local op
-    //     packageDoc.once('op', _ => {
-    //         onPackageDocUpdated(packageDoc.data)
-    //         editor.call('realtime:send', 'doc:save:', parseInt(pkg.get('id'), 10));
-    //     })
-
-    //     const op = diff2Op(diff)
-    //     packageDoc.submitOp(op)
-
-    //     // KLUDGE: Submitting an op to shareDB won't updated the local state.
-    //     // This hack triggers an internal update. Ideally we can hook into some local api to update
-    //     if (openedDoc) {
-    //         // pkg.sync.unbind('sync', onPackageDocUpdated)
-    //         openedDoc.emit('op', op, false)
-    //         // pkg.sync.on('sync', onPackageDocUpdated)
-    //     }
-    // })
-
-    // Watch for any updates to the package.json
-    // editor.on('assets:load', _ => {
-        watchPkgJson(async pkg => {
-            // If the package.json exists update the UI and trigger a rebuild
-            if(pkg){
-
-                packagePanel.updatePackages(pkg.dependencies)
-                bundler?.updateDeps(pkg.dependencies)
-            }
-        })
-    // })
-
-    window.postMessage({ message: 'pcpm:editor-loaded', data: window.config.project })
-    window.postMessage({message: "pcpm:enabled", data: true })
+    } else {
+        init()
+    }
 })
 
 // editor.once('load', async progress => {

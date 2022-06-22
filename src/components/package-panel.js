@@ -13,10 +13,11 @@ export default class PackagePanel extends Panel {
             headerText: name,
             collapsible: true,
             collapsed: true,
-            removable: true
+            removable: true,
+            hidden: true
         })
         
-        const info = new InfoBox({
+        this.info = new InfoBox({
             title: version,
             text: description,
             icon: 'E410'
@@ -24,6 +25,17 @@ export default class PackagePanel extends Panel {
 
         this.content.style.background = 'rgb(41, 53, 56)'
 
-        this.append(info)
+        this.append(this.info)
+    }
+
+    set module({ name, version, description }){
+        this.headerText = name
+        this.info.title = version
+        this.info.text = description
+        this.info.collapsed = true
+    }
+
+    get module(){
+        return { name: this.headerText, version: this.info.title, description: this.info.text }
     }
 }

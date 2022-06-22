@@ -97,9 +97,9 @@ export default async function initialize(cache = {}, dependencies = {}) {
     // triggerBuild(cache, dependencies)
 
     return {
-        updateDeps: deps => {
+        updateDeps: (deps, shouldBuild = true) => {
             dependencies = deps
-            triggerBuild(cache, dependencies)    
+            if(shouldBuild) triggerBuild(cache, dependencies)    
         },
         destroy: _ => {
 

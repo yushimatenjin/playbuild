@@ -146,8 +146,12 @@ export default class PackageManagerSettings extends Panel {
             // const localPkg = JSON.parse(packageDoc.data)
             // const l
             // localPkg.dependencies = { ...localPkg.dependencies, [name]: version }
+            const pkg = {[name]: version}
+
+            // Optimistic local update to give faster user feedback
+            if(this.deps) this.updatePackages({ ...this.deps, ...pkg })
             
-            this.emit('add', {[name]: version})
+            this.emit('add', pkg)
             // this.emit('update', { ...localPkg.dependencies, [name]: version })
             // updatePackageJson(localPkg)
         }
@@ -173,14 +177,16 @@ export default class PackageManagerSettings extends Panel {
             if(currentSearch !== searchTerm) return
             
             resultsCont.hidden = false
+            results.forEach(info => info.hidden = true)
             
             objects.forEach((object, i) => {
                 const info = results[i]
+                info.hidden = false
                 info.dom.onmousedown = e => {
                     searchInput.value = ''
                     searchInput.blur()
-                    resultsCont.hidden = true
                     addPackage(object.package)
+                    resultsCont.hidden = true
                 }
                 info.title = object.package.name
                 info.text = object.package.description
@@ -287,23 +293,39 @@ export default class PackageManagerSettings extends Panel {
         // noPackageWarn.on('package:created', onFileSystemUpdate)
         // onFileSystemUpdate(null)
 
+        this.packagePanels = []
+
+        for(let i = 0 ; i < MAX_RESULTS ; i++ ){
+            const packagePanel = new PackagePanel({ hidden: true })
+            packagePanel.class.add('layers-settings-panel-layer-panel');
+            packagePanel.on('click:remove', _ => {
+                removePackage(packagePanel.module)
+            })
+            this.installedPkgsCont.append(packagePanel)
+            this.packagePanels.push(packagePanel)
+        }
+
     }
 
     updatePackages (deps) {
 
+        // Hide initial panels incase theres less than MAX_RESULTS
+        this.packagePanels.forEach(packagePanel => {
+            packagePanel.hidden = true
+            packagePanel.module = { name: '', description: '', version: '' }
+        })
+
+        this.deps = deps
+
         if(!deps) return
 
-        this.installedPkgsCont.clear()
+        // dedupe the keys
+        const keys = [...new Set(Object.keys(deps))];
 
-        Object.keys(deps).forEach(async (name, i) => {
-            const module = await fetch(`https://registry.npmjs.com/${name}/${deps[name]}`).then(r => r.json())
-            const packagePanel = new PackagePanel(module)
-            packagePanel.class.add('layers-settings-panel-layer-panel');
-            packagePanel.on('click:remove', _ => {
-                console.log('this remove', 'removing')
-                this.emit('remove', name )
-            })
-            this.installedPkgsCont.append(packagePanel)
+        keys.forEach(async (name, i) => {
+            const packagePanel = this.packagePanels[i]
+            packagePanel.module = await fetch(`https://registry.npmjs.com/${name}/${deps[name]}`).then(r => r.json())
+            packagePanel.hidden = false
         })
     }
 

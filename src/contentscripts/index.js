@@ -26,7 +26,6 @@ const build = async (files, deps) => {
         esBuildInitialised = true
     }
     
-    console.log(withIndex(files))
     const { plugin : filePlugin, updateFiles } = cachePlugin(withIndex(files))
     const { plugin : unpkgPlugin, updatePackages } = unpkgPathPlugin(deps)
     
