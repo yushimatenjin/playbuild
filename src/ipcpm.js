@@ -23,14 +23,9 @@ const onScriptAdded = asset => {
 
 window.addEventListener('message', ({ data }) => {
   switch(data?.message){
-    case 'pcpm:build' :
-        // rebuild(data.data)
-        break
     case 'pcpm:enabled' :
 
       const enabled = data.data
-      // panel.compilerEnabled = enabled
-      console.log('pcpm:enabled', data.data)
 
       if(enabled){
         editor.on('assets:scripts:add', onScriptAdded)

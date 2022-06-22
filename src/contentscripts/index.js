@@ -26,6 +26,7 @@ const build = async (files, deps) => {
         esBuildInitialised = true
     }
     
+    console.log(withIndex(files))
     const { plugin : filePlugin, updateFiles } = cachePlugin(withIndex(files))
     const { plugin : unpkgPlugin, updatePackages } = unpkgPathPlugin(deps)
     
@@ -83,19 +84,14 @@ const rebuild = async ({ cache, deps }) => {
     }
 }
 
-// From the chrome extension
 let enabled = false
-chrome.runtime.onMessage.addListener(({ message, data }) => {
-    if (message === "pcpm:enabled") {
-        enabled = data
-        window.postMessage({ message, data })
-    }
-})
-
 
 // From the page/window
 window.addEventListener('message', ({ data }) => {
     switch(data?.message){
+        case 'pcpm:enabled' :
+            enabled = data.data
+            break;
         case 'pcpm:build' :
             if(!enabled) return
             rebuild(data.data)

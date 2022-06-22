@@ -8,26 +8,26 @@ let bundler
 window.addEventListener('message', async ({ data }) => {
     switch(data?.message){
         case 'pcpm:build' :
-            editor.call('status:log', `PCPM is compiling the scripts...`)
+            editor.call('status:log', `Compiling scripts...`)
             break
         case 'pcpm:build:done' :
             editor.call('status:log', `Code compiled ✔`)
             break
         case 'pcpm:build:error' :
             const error = data.data[0]
-            editor.call('status:error', `❌ Error ${error.text} @ ${error.location.file}:${error.location.line}:${error.location.column}`)
+            editor.call('status:error', `❌ Error ${error.text} @ ${error.location?.file}:${error.location?.line}:${error.location?.column}`)
             break
         case 'pcpm:enabled' :
   
             const enabled = data.data
 
-            if(enabled){
+            if(enabled && !bundler){
                 bundler = await initializeBundler()
-            } else if(bundler) {
+            } else if(!enabled && bundler) {
                 bundler.destroy()
                 bundler = null
             }
-
+            console.log('status:log', `PCPM is ${enabled ? 'enabled' : 'disabled'}`)
             editor.call('status:log', `PCPM is ${enabled ? 'enabled' : 'disabled'}`)
     
             // if(enabled){
@@ -41,7 +41,7 @@ window.addEventListener('message', async ({ data }) => {
     }
 })
 
-editor.once('realtime:authenticated', _ => {
+editor.once('assets:load', _ => {
 
     const dmp = new DiffMatchPatch.diff_match_patch()
     const packagePanel = new PackageManagerSettings(/*findAsset(isPkgJson)*/)
@@ -136,7 +136,7 @@ editor.once('realtime:authenticated', _ => {
     // })
 
     // Watch for any updates to the package.json
-    editor.on('assets:load', _ => {
+    // editor.on('assets:load', _ => {
         watchPkgJson(async pkg => {
             // If the package.json exists update the UI and trigger a rebuild
             if(pkg){
@@ -145,9 +145,10 @@ editor.once('realtime:authenticated', _ => {
                 bundler?.updateDeps(pkg.dependencies)
             }
         })
-    })
+    // })
 
     window.postMessage({ message: 'pcpm:editor-loaded', data: window.config.project })
+    window.postMessage({message: "pcpm:enabled", data: true })
 })
 
 // editor.once('load', async progress => {

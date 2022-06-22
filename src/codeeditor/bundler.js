@@ -94,7 +94,7 @@ export default async function initialize(cache = {}, dependencies = {}) {
     editor.on('assets:remove', onAssetRemoved)
     
     //Trigger Initial Build
-    triggerBuild(cache, dependencies)
+    // triggerBuild(cache, dependencies)
 
     return {
         updateDeps: deps => {
