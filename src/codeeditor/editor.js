@@ -120,8 +120,10 @@ editor.once('assets:load', _ => {
 
         // Watch for any updates to the package.json
         watchPkgJson(async pkg => {
+            // Don't trigger a rebuild if the package has been deleted
+            const shouldRebuild = !!pkg
             packagePanel.updatePackages(pkg?.dependencies)
-            bundler?.updateDeps(pkg?.dependencies)
+            bundler?.updateDeps(pkg?.dependencies, shouldRebuild)
         })
 
         window.postMessage({ message: 'pcpm:editor-loaded', data: window.config.project })

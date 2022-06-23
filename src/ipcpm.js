@@ -21,19 +21,15 @@ const onScriptAdded = asset => {
   asset.set('preload', false)
 }
 
+// When the build is updated re-parse in the editor to elinate any incorrect errors that are flagged
 editor.on('assets:load', _ => {
   
   const build = findAsset(isBuildFile)
   if(build){
-    console.log(parseInt(build.get('id'), 10))
+
     const doc = editor.realtime.connection.getDocument('assets', parseInt(build.get('id'), 10))
 
-    const onOp = _ => {
-      console.log('parsing')
-      // doc.unbind('op batch', onOp)  
-      editor.call('scripts:parse', build, _ => doc.once('op batch', onOp));
-    }
-
+    const onOp = _ => editor.call('scripts:parse', build, _ => doc.once('op batch', onOp));
     doc.once('op batch', onOp)
   }
 })
