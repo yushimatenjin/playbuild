@@ -6,7 +6,7 @@ export default unpkgPathPlugin = (p) => {
 
     let packages = p
     const updatePackages = p => (packages = p)
-    const filter = /^[^\.\/]/
+    const filter = /^(@[a-z0-9-~][a-z0-9-._~]*\/)?[a-z0-9-~][a-z0-9-._~]*$/
     const namespace = 'http-url'
 
     return {

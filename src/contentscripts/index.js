@@ -41,6 +41,7 @@ const build = async (files, deps) => {
                 platform: 'browser',
                 external: ['fs', 'path'],
                 loader: { '.js': 'jsx' },
+                target: ['es6'],
                 // logLevel: 'silent',
                 // sourcemap: 'inline',
                 // sourceRoot: 'https://launch.playcanvas.com/api/assets/files/',

@@ -39,7 +39,6 @@ export default async function initialize(cache = {}, dependencies = {}) {
 
                 const save = _ => {
                     editor.call('realtime:send', 'doc:save:', parseInt(buildFile.get('id'), 10));
-                    // console.log('Saving')
                 }
 
                 const submitOp = (doc, data) => {
