@@ -93,7 +93,7 @@ editor.once('assets:load', _ => {
 
             packageDoc.submitOp(op)
 
-            findAsset(isPkgJson).sync.emit('sync', op);
+            // findAsset(isPkgJson).sync.emit('sync', op);
             packageDoc.emit('op', op, false)
         })
 

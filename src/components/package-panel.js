@@ -8,13 +8,12 @@ const ATTRIBUTES = module => [
 ]
 
 export default class PackagePanel extends Panel {
-    constructor({ name, version, description}){
+    constructor({ name, version, description }){
         super({
             headerText: name,
             collapsible: true,
             collapsed: true,
-            removable: true,
-            hidden: true
+            removable: true
         })
         
         this.info = new InfoBox({
@@ -32,7 +31,6 @@ export default class PackagePanel extends Panel {
         this.headerText = name
         this.info.title = version
         this.info.text = description
-        this.info.collapsed = true
     }
 
     get module(){

@@ -46,6 +46,7 @@ export default class PackageManagerSettings extends Panel {
         const searchInput = new TextInput({keyChange: true, placeholder: 'Add Dependency'})
         const resultsCont = new Container({ hidden: true })
         this.installedPkgsCont = new Container()
+        this.deps = {}
 
         // let openedDoc
         // editor.on('documents:close', id => {
@@ -156,16 +157,16 @@ export default class PackageManagerSettings extends Panel {
             // updatePackageJson(localPkg)
         }
 
-        const removePackage = ({ name }) => {
+        // const removePackage = ({ name }) => {
             
-            // const localPkg = JSON.parse(packageDoc.data)
-            // const pkg = { ...locaPkg }
-            // delete pkg.dependencies[name]
+        //     // const localPkg = JSON.parse(packageDoc.data)
+        //     // const pkg = { ...locaPkg }
+        //     // delete pkg.dependencies[name]
             
-            this.emit('remove', name )
-            // this.emit('update', pkg )
-            // updatePackageJson(localPkg)
-        }
+        //     this.emit('remove', name )
+        //     // this.emit('update', pkg )
+        //     // updatePackageJson(localPkg)
+        // }
 
         searchInput.on('change', async searchTerm => {
             if(currentSearch === searchTerm) return
@@ -293,40 +294,50 @@ export default class PackageManagerSettings extends Panel {
         // noPackageWarn.on('package:created', onFileSystemUpdate)
         // onFileSystemUpdate(null)
 
-        this.packagePanels = []
+        this.packagePanels = {}
 
-        for(let i = 0 ; i < MAX_RESULTS ; i++ ){
-            const packagePanel = new PackagePanel({ hidden: true })
-            packagePanel.class.add('layers-settings-panel-layer-panel');
-            packagePanel.on('click:remove', _ => {
-                removePackage(packagePanel.module)
-            })
-            this.installedPkgsCont.append(packagePanel)
-            this.packagePanels.push(packagePanel)
-        }
+        // // for(let i = 0 ; i < MAX_RESULTS ; i++ ){
+        //     const packagePanel = new PackagePanel({ hidden: true })
+        //     packagePanel.class.add('layers-settings-panel-layer-panel');
+        //     packagePanel.on('click:remove', _ => {
+        //         removePackage(packagePanel.module)
+        //     })
+        //     this.installedPkgsCont.append(packagePanel)
+        //     // this.packagePanels.push(packagePanel)
+        // // }
 
     }
 
     updatePackages (deps) {
 
-        // Hide initial panels incase theres less than MAX_RESULTS
-        this.packagePanels.forEach(packagePanel => {
-            packagePanel.hidden = true
-            packagePanel.module = { name: '', description: '', version: '' }
-        })
-
-        this.deps = deps
-
-        if(!deps) return
-
         // dedupe the keys
-        const keys = [...new Set(Object.keys(deps))];
+        const uniqueDeps = [...new Set(Object.keys(deps ?? {}))];
+        const currentDeps = Object.keys(this.deps)
 
-        keys.forEach(async (name, i) => {
-            const packagePanel = this.packagePanels[i]
-            packagePanel.module = await fetch(`https://registry.npmjs.com/${name}/${deps[name]}`).then(r => r.json())
-            packagePanel.hidden = false
+        // Remove any packages in our current state that do not exist in the new state
+        currentDeps?.forEach( name  => {
+            if(!uniqueDeps?.includes(name)){
+                const packagePanel = this.packagePanels[name]
+                packagePanel?.parent.remove(packagePanel)
+                packagePanel?.destroy()
+            }
         })
+
+        uniqueDeps.forEach(async (name, i) => {
+            if(currentDeps.includes(name)) return
+            const module = await fetch(`https://registry.npmjs.com/${name}/${deps[name]}`).then(r => r.json())
+            const packagePanel = new PackagePanel(module)
+            packagePanel.class.add('layers-settings-panel-layer-panel');
+            packagePanel.on('click:remove', _ => {
+                packagePanel.parent.remove(packagePanel)
+                delete this.packagePanels[name]
+                this.emit('remove', module.name )
+            })
+            this.packagePanels[name] = packagePanel
+            this.installedPkgsCont.append(packagePanel)
+        })
+
+        this.deps = deps ?? {}
     }
 
 }
