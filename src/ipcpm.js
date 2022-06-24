@@ -32,7 +32,7 @@ editor.on('assets:load', _ => {
     const onOp = debounce(_ => {
       console.log('Build File Op')
       editor.call('scripts:parse', build, _ => doc.once('op batch', onOp))
-    }, 1000) ;
+    }, 2000) ;
     doc.once('op batch', onOp)
   }
 })
