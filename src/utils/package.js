@@ -38,14 +38,10 @@ export const watchPkgJson = async onChange => {
     else editor.on('assets:add', onAssetAdded)
 }
 
-export const createPackageJson = _ => {
+export const createPackageJson = (pkg = { dependencies:{}}) => {
     return new Promise((resolve, reject) => {
         if (!editor.call('permissions:write')) reject()
         // if (findAsset(isPkgJson)) resolve(pkg)
-
-        const pkg = {
-            dependencies:{}
-        }
 
         var assetDef = {
             name: 'package.json',

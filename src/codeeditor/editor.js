@@ -1,5 +1,5 @@
 import { isPkgJson, diff2Op, findAsset  } from '../utils'
-import { watchPkgJson, getPkgJson } from '../utils/package'
+import { watchPkgJson, getPkgJson, createPackageJson } from '../utils/package'
 import PackageManagerSettings from '../components/package-manager'
 import initializeBundler from '../codeeditor/bundler'
 import * as DiffMatchPatch from 'diff-match-patch-js-browser-and-nodejs/diff_match_patch.js';
@@ -74,6 +74,12 @@ editor.once('assets:load', _ => {
         }
 
         packagePanel.on('add', async newPackage => {
+
+            const pkg = findAsset(isPkgJson)
+            if(!pkg){
+                await createPackageJson({ dependencies: { ...newPackage }})
+            }
+
             const packageDoc = await getPkgJson() // find and create a pkg.json if none exist
             packageDoc.once('op', _ => {
                 editor.call('realtime:send', 'doc:save:', parseInt(packageDoc.id, 10));
