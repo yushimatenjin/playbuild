@@ -1,5 +1,6 @@
 // import PackageManagerSettings from './components/pcpm-settings';
 import { findAsset, isBuildFile, isPkgJson, isWatchableFile } from './utils'
+import { debounce } from 'debounce'
 
 // const panel = new PackageManagerSettings()
 
@@ -28,8 +29,10 @@ editor.on('assets:load', _ => {
   if(build){
 
     const doc = editor.realtime.connection.getDocument('assets', parseInt(build.get('id'), 10))
-
-    const onOp = _ => editor.call('scripts:parse', build, _ => doc.once('op batch', onOp));
+    const onOp = debounce(_ => {
+      console.log('Build File Op')
+      editor.call('scripts:parse', build, _ => doc.once('op batch', onOp))
+    }, 1000) ;
     doc.once('op batch', onOp)
   }
 })
