@@ -16,8 +16,7 @@
 		}
 	},
     "permissions": [
-        "tabs",
-		"storage"
+        "tabs"
     ],
 	"content_security_policy": {
 		"extension_pages": "script-src 'self' 'wasm-unsafe-eval'; default-src 'self'"
