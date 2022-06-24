@@ -99,7 +99,7 @@ window.addEventListener('message', ({ data }) => {
         case 'pcpm:build:done' :
         case 'pcpm:build:error' :
         case 'pcpm:editor-loaded' :
-            chrome.runtime.sendMessage(data)
+            // chrome.runtime.sendMessage(data)
             break
         default: break
     }
