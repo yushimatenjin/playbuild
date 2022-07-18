@@ -1,13 +1,11 @@
 // import { SourceMapConsumer } from 'source-map'
 import StackTrace from 'stacktrace-js'
-import StackTraceGPS from 'stacktrace-gps'
 
 const injectOnError = _ => {
 
     // SourceMapConsumer.initialize({
     //     "lib/mappings.wasm": "https://unpkg.com/source-map@0.7.3/lib/mappings.wasm"
     // });
-    var gps = new StackTraceGPS();
     
     const onAssetAdded = async asset => {
     

@@ -24,7 +24,6 @@
     "diff-match-patch-js-browser-and-nodejs": "^1.0.2",
     "esbuild-wasm": "^0.14.38",
     "path-browserify": "^1.0.1",
-    "stacktrace-gps": "^3.0.4",
     "stacktrace-js": "^2.0.2"
   }
 }
