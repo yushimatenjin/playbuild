@@ -15,7 +15,7 @@
     "esbuild": "^0.14.49",
     "esbuild-copy-static-files": "^0.1.0",
     "ws": "^8.5.0",
-    "zip-a-folder": "^1.1.3"
+    "zip-a-folder": "^1.1.5"
   },
   "dependencies": {
     "@playcanvas/observer": "^1.3.1",
