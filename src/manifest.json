@@ -31,6 +31,6 @@
 	}],
     "web_accessible_resources": [{
 		"resources": [ "ipcpm.js", "codeeditor/editor.js", "compiler.wasm" ],
-		"matches": [ "https://*/*" ]
+		"matches": [ "https://playcanvas.com/*" ]
 	}]
 }
