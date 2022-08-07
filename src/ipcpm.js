@@ -16,12 +16,6 @@ import { debounce } from 'debounce'
 //     if (!panel.parent) root.append(panel);
 // });
 
-const onScriptAdded = asset => {
-  if(!isWatchableFile(asset)) return
-  asset.set('exclude', true)
-  asset.set('preload', false)
-}
-
 // When the build is updated re-parse in the editor to elinate any incorrect errors that are flagged
 editor.on('assets:load', _ => {
   
