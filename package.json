@@ -14,7 +14,7 @@
     "adm-zip": "^0.5.9",
     "esbuild": "^0.14.49",
     "esbuild-copy-static-files": "^0.1.0",
-    "ws": "^8.5.0",
+    "ws": "^8.11.0",
     "zip-a-folder": "^1.1.5"
   },
   "dependencies": {
