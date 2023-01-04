@@ -4,7 +4,7 @@ export default {
     entryPoints: ['./src/contentscripts', './src/serviceworkers', './src/ipcpm', './src/codeeditor/editor', './src/error-handler' ],
     outdir: 'build',
     treeShaking: true,
-    define: { DEBUG: false },
+    define: { DEBUG: 'false' },
     bundle: true
 }
 

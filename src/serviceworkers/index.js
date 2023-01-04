@@ -61,7 +61,9 @@
 //         } */
 //     })
 
-    if(DEBUG) {
+    if(DEBUG === 'true') {
+
+        console.log('IN DEBUG MODE')
 
         /*
             Dev util to handle hot reloading of chrome extension

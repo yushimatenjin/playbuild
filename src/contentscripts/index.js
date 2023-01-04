@@ -108,6 +108,7 @@ window.addEventListener('message', ({ data }) => {
 
 // inject script
 const isCodeEditor = location.href.includes('/editor/code')
+
 // const isLauncher = !isEditor && location.href.includes('://launch.playcanvas.com/')
 var s = document.createElement('script');
 s.src = chrome.runtime.getURL(isCodeEditor ? './codeeditor/editor.js' : 'ipcpm.js');

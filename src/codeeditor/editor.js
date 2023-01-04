@@ -45,6 +45,8 @@ editor.once('assets:load', _ => {
 
     const init = async pkg => {
 
+        console.log(pkg)
+
         const dmp = new DiffMatchPatch.diff_match_patch()
         const packagePanel = new PackageManagerSettings()
         editor.call('layout.left').append(packagePanel)
@@ -143,9 +145,9 @@ editor.once('assets:load', _ => {
             if(err) return
             init(JSON.parse(value))
         })
-    } else {
+    }/* else {
         init()
-    }
+    }*/
 })
 
 // editor.once('load', async progress => {

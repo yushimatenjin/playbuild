@@ -13,13 +13,13 @@ wss.on('connection', localWs => {
 esbuild.build({
     ...common,
     plugins: [...plugins, manifestPlugin(true)],
-    define: { DEBUG: true },
+    define: { DEBUG: 'true' },
     watch: {
         onRebuild(error, result) {
             if (error) console.error('watch build failed:', error)
             else {
                 console.log('watch build succeeded:')
-                // ws && ws.send('rebuild')
+                ws && ws.send('rebuild')
             }
         },
     }
