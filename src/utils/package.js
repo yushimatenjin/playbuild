@@ -70,7 +70,7 @@ export const createPackageJson = (pkg = { dependencies:{}}) => {
 }
 
 /*
-  UPSERT OP on package.json file. Fetches and creates one if none exists
+  Fetches package.json
 */
 export const getPkgJson = _ => {
 
@@ -78,8 +78,9 @@ export const getPkgJson = _ => {
         let pkg = findAsset(isPkgJson)
 
         if (!pkg){
-            await createPackageJson()
-            pkg = findAsset(isPkgJson)
+            resolve(null)
+            // await createPackageJson()
+            // pkg = findAsset(isPkgJson)
         }
 
         const connection = editor.call("realtime:connection");

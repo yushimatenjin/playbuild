@@ -77,39 +77,41 @@ editor.once('assets:load', _ => {
 
         packagePanel.on('add', async newPackage => {
 
-            const pkg = findAsset(isPkgJson)
-            if(!pkg){
-                await createPackageJson({ dependencies: { ...newPackage }})
+            const pkg = await getPkgJson()//findAsset(isPkgJson)
+            if(pkg){
+                // if(!pkg){
+                //     await createPackageJson({ dependencies: { ...newPackage }})
+                // }
+
+                // const packageDoc = await getPkgJson()
+                pkg.once('op', _ => {
+                    editor.call('realtime:send', 'doc:save:', parseInt(pkg.id, 10));
+                })
+
+                const data = JSON.parse(packageDoc.data)
+                const op = getOperationalTransform(
+                    pkg.data, 
+                    JSON.stringify({ 
+                        ...data,
+                        dependencies:{
+                            ...data.dependencies,
+                            ...newPackage 
+                        }
+                    }, null, 4)
+                )
+
+                pkg.submitOp(op)
+
+                // findAsset(isPkgJson).sync.emit('sync', op);
+                pkg.emit('op', op, false)
             }
-
-            const packageDoc = await getPkgJson() // find and create a pkg.json if none exist
-            packageDoc.once('op', _ => {
-                editor.call('realtime:send', 'doc:save:', parseInt(packageDoc.id, 10));
-            })
-
-            const data = JSON.parse(packageDoc.data)
-            const op = getOperationalTransform(
-                packageDoc.data, 
-                JSON.stringify({ 
-                    ...data,
-                    dependencies:{
-                        ...data.dependencies,
-                        ...newPackage 
-                    }
-                }, null, 4)
-            )
-
-            packageDoc.submitOp(op)
-
-            // findAsset(isPkgJson).sync.emit('sync', op);
-            packageDoc.emit('op', op, false)
         })
 
         packagePanel.on('remove', async removedPackageName => {
-            const packageAsset = findAsset(isPkgJson)
-            if(!packageAsset) return 
+            const pkg = await getPkgJson()
+            if(!pkg) return 
 
-            const packageDoc = await getPkgJson()
+            // const packageDoc = await getPkgJson()
             
             packageDoc.once('op', _ => {
                 editor.call('realtime:send', 'doc:save:', parseInt(packageDoc.id, 10));
@@ -129,7 +131,8 @@ editor.once('assets:load', _ => {
         // Watch for any updates to the package.json
         watchPkgJson(async pkg => {
             // Don't trigger a rebuild if the package has been deleted
-            const shouldRebuild = !!pkg
+            const packageJsonExists = !!pkg
+            const shouldRebuild = doesPackageJsonStillExist
             packagePanel.updatePackages(pkg?.dependencies)
             bundler?.updateDeps(pkg?.dependencies, shouldRebuild)
         })
