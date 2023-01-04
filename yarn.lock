@@ -263,10 +263,10 @@ esbuild-copy-static-files@^0.1.0:
   resolved "https://registry.yarnpkg.com/esbuild-copy-static-files/-/esbuild-copy-static-files-0.1.0.tgz#4bb4987b5b554d2fc122a45f077d74663b4dbcf0"
   integrity sha512-KlpmYqANA1t2nZavEdItfcOjJC6wbHA21v35HJWN32DddGTWKNNGDKljUzbCPojmpD+wAw8/DXr5abJ4jFCE0w==
 
-esbuild-wasm@^0.14.49:
-  version "0.14.49"
-  resolved "https://registry.yarnpkg.com/esbuild-wasm/-/esbuild-wasm-0.14.49.tgz#5b0909b8172653f031163675341bdf4311a7a139"
-  integrity sha512-5ddzZv8M3WI1fWZ5rEfK5cSA9swlWJcceKgqjKLLERC7FnlNW50kF7hxhpkyC0Z/4w7Xeyt3yUJ9QWNMDXLk2Q==
+esbuild-wasm@^0.16.13:
+  version "0.16.13"
+  resolved "https://registry.yarnpkg.com/esbuild-wasm/-/esbuild-wasm-0.16.13.tgz#038c86168a22f05393e0dd3b8047451a6b839413"
+  integrity sha512-TW1pPU7EK3+epIj496qBHPqvAwuGp8Br8yocfk6nez/GjxVx2jyJo6E7kJ0nNEF2XsqWG5/FvnomDHfnmZHsBQ==
 
 esbuild@^0.16.13:
   version "0.16.13"
