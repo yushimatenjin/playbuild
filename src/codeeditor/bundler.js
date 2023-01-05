@@ -27,6 +27,8 @@ export default function initialize(cache = {}, dependencies = {}) {
 
         // Update the cache with the initial files
         initialFiles.forEach(({ key, value }) => cache[key] = value)
+
+        triggerBuild(cache, dependencies)
     }
 
     watchFiles()
@@ -102,7 +104,7 @@ export default function initialize(cache = {}, dependencies = {}) {
     return {
         updateDeps: (deps, shouldBuild = true) => {
             dependencies = deps
-            if(shouldBuild) triggerBuild(cache, dependencies)    
+            if(shouldBuild && Object.keys(cache).length > 0 ) triggerBuild(cache, dependencies)    
         },
         destroy: _ => {
 

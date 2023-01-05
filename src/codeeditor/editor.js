@@ -110,7 +110,6 @@ editor.once('assets:load', _ => {
                 bundler = initializeBundler()
                 // window.postMessage({message: "pcpm:enabled", data: true })
             }
-            console.log(bundler)
             driver.update(pkg?.dependencies)
             bundler.updateDeps(pkg?.dependencies, true)
             
