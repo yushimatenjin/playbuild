@@ -1,5 +1,5 @@
 import { resolve } from 'path-browserify'
-import { resolveModule } from '../resolve'
+import { resolveModule } from '../utils/resolve'
 
 export default function cachePlugin (files) {
 
