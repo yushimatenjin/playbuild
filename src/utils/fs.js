@@ -17,9 +17,7 @@ export const watchFile = (asset, onUpdate) => {
         if(!editor.isCodeEditor) reject(`'watchFile' only works in the code editor page`)
         
         const connection = editor.call('realtime:connection')
-        // const name = asset.get('name')
         const uid = asset.get('id')
-        // console.log('Watching asset ', name, uid)
 
         // Source scripts included in the build must be excluded from PC launcher
         const doc = connection.get('assets', uid)
