@@ -106,9 +106,11 @@ export default function initialize(cache = {}, dependencies = {}) {
         },
         destroy: _ => {
 
+            window.removeEventListener('message', onWindowPostMessage )
+
             // Removed Asset Found/Lost Listeners
-            editor.on('assets:add', onAssetAddded)
-            editor.on('assets:remove', onAssetRemoved)
+            editor.unbind('assets:add', onAssetAddded)
+            editor.unbind('assets:remove', onAssetRemoved)
 
             editor.call('assets:list')
                 .filter(isWatchableFile)

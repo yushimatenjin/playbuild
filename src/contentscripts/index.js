@@ -96,9 +96,9 @@ window.addEventListener('message', ({ data }) => {
         case 'pcpm:build' :
             if(!enabled) return
             rebuild(data.data)
-        case 'pcpm:build:done' :
-        case 'pcpm:build:error' :
-        case 'pcpm:editor-loaded' :
+        // case 'pcpm:build:done' :
+        // case 'pcpm:build:error' :
+        // case 'pcpm:editor-loaded' :
             // chrome.runtime.sendMessage(data)
             break
         default: break

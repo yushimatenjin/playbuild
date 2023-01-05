@@ -17,19 +17,16 @@ export default function cachePlugin (files) {
                     const absPath = resolve(resolveDir, path)
 
                     if (['fs', 'path'].includes(path)) {
-                        return {
-                            external: true
-                        }    
+                        return { external: true }    
                     }
-                    // console.log('absPath', absPath)
+
                     const resolvedPath = resolveModule(absPath, vfs)
                     if(resolvedPath === undefined){
                         return { 
-                            errors: [{
-                                text: `Module '${resolve(resolveDir, path)}' not found.`
-                            }]
+                            errors: [{ text: `Module '${resolve(resolveDir, path)}' not found.` }]
                         }
                     }
+
                     return {
                         path: resolvedPath
                     }
@@ -41,7 +38,6 @@ export default function cachePlugin (files) {
                         loader: 'jsx',
                     }
                 })
-        
             }
         }
     }
