@@ -3,7 +3,7 @@ import * as DiffMatchPatch from 'diff-match-patch-js-browser-and-nodejs/diff_mat
 import { debounce } from 'debounce'
 import { watchFile } from '../utils/fs'
 
-export default async function initialize(cache = {}, dependencies = {}) {
+export default function initialize(cache = {}, dependencies = {}) {
 
     const dmp = new DiffMatchPatch.diff_match_patch()
     const connection = editor.call('realtime:connection')
@@ -19,13 +19,17 @@ export default async function initialize(cache = {}, dependencies = {}) {
         triggerBuild(cache, dependencies)
     }
 
-    // Load the initial available files and listen for changes
-    const initialFiles = await Promise.all(editor.call('assets:list')
-        .filter(isWatchableFile)
-        .map(asset => watchFile(asset, incrementalBuild)))
+    const watchFiles = async _ => {
+        // Load the initial available files and listen for changes
+        const initialFiles = await Promise.all(editor.call('assets:list')
+            .filter(isWatchableFile)
+            .map(asset => watchFile(asset, incrementalBuild)))
 
-    // Update the cache with the initial files
-    initialFiles.forEach(({ key, value }) => cache[key] = value)
+        // Update the cache with the initial files
+        initialFiles.forEach(({ key, value }) => cache[key] = value)
+    }
+
+    watchFiles()
 
     /*
     *  Listen for compiler events

@@ -340,4 +340,9 @@ export default class PackageManagerSettings extends Panel {
         this.deps = deps ?? {}
     }
 
+    destroy(){
+        this.updatePackages({})
+        super.destroy()
+    }
+
 }

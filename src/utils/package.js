@@ -39,22 +39,13 @@ export const watchPkgJson = async onChange => {
     if(!onChange || typeof onChange !== 'function') throw new Error(`'watchPkgJson' expects a function parameter`)
     const connection = editor.call('realtime:connection')
 
-    const onAssetRenamed = name => {
-
-        const asset = findAsset(isPkgJson)
-
-        if(name === 'package.json') {
-            onAssetAdded(asset)
-        } else {
-            // onAssetRemoved(asset)
-        }
-    }
 
     const onAssetRemoved = asset => {
-        if(!isPkgJson(asset)) return
         editor.unbind('assets:remove', onAssetRemoved)
         asset.unbind('file.hash:set', onAssetContentChanged)
         editor.on('assets:add', onAssetAdded)
+        asset.once('name:set', _ => onAssetAdded(asset))
+        asset.once('path:set', _ => onAssetAdded(asset))
         onChange(null)
     }
 
@@ -62,40 +53,23 @@ export const watchPkgJson = async onChange => {
 
         const uid = asset.get('id')
         const doc = connection.get('documents', uid)
-        // const key = resolvePath(asset)
         if(doc?.data) onChange(doc.data)
     }
-
-    // const watch = async pkg => {    
-    //     editor.on('assets:remove', onAssetRemoved)
-    //     asset.on('file.hash:set', onAssetContentChanged)
-    //     return readFile(pkg, onChange)
-    // }
     
     const onAssetAdded = async asset => {
         if(isPkgJson(asset)){
-            editor.unbind('assets:add', onAssetAdded)
-            // const checkIfRenamedFromPackageJson = (a, b, c) => {
-            //     console.log('isPGF A', isPkgJson(asset), a, b, c)
-            //     if(!isPkgJson(asset)) {
-            //         asset.unbind('name:set', checkIfRenamedFromPackageJson)
-            //         onAssetRemoved(asset)
-            //     }
-            // }
-            asset.on('name:set', checkIfRenamedFromPackageJson)
-            asset.on('file.hash:set', onAssetContentChanged)
             editor.on('assets:remove', onAssetRemoved)
-            const pkg = await readFile(asset)
+            asset.on('file.hash:set', onAssetContentChanged)
+            editor.unbind('assets:add', onAssetAdded)
+            asset.once('name:set', _ => onAssetRemoved(asset))
+            asset.once('path:set', _ => onAssetRemoved(asset))
+            const pkg = await watchJson(asset)
             onChange(pkg)
+
         } else {
-            // const checkIfRenamedToPackageJson = (a, b, c) => {
-            //     console.log('isPGF B', isPkgJson(asset), a, b, c)
-            //     if(isPkgJson(asset)) {
-            //         asset.unbind('name:set', checkIfRenamedToPackageJson)
-            //         onAssetAdded(asset)
-            //     }
-            // }
-            // asset.on('name:set', checkIfRenamedToPackageJson)
+
+            asset.once('name:set', _ => onAssetAdded(asset))
+            asset.once('path:set', _ => onAssetAdded(asset))
         }
     }
     

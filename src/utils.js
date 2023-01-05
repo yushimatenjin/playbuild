@@ -27,6 +27,7 @@ const BUILD_FILE_NAME = 'built.js'
 const BANNER = '/* BUILT WITH PCPM */'
 
 export const isPkgJson = asset =>
+  asset.get &&
   asset.get('type') === 'json' &&
   asset.get('name') === PACKAGE_JSON_NAME &&
   asset.get('path').length === 0
