@@ -19,11 +19,6 @@ export const watchFile = (asset, onUpdate) => {
         const connection = editor.call('realtime:connection')
         const uid = asset.get('id')
 
-        // Source scripts included in the build must be excluded from PC launcher
-        const doc = connection.get('assets', uid)
-        doc.submitOp({ p: ['exclude'], oi:true })
-        doc.submitOp({ p: ['preload'], oi:false })
-
         asset.sync.on('sync', _ => {
             // const doc = editor.call('documents:get', uid );
             const doc = connection.get('documents', uid)

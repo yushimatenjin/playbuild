@@ -1,4 +1,4 @@
-import { isWatchableFile, diff2Op, getBuildFile, resolvePath } from "../utils"
+import { isWatchableFile, diff2Op, getBuildFile, resolvePath } from "../utils/utils"
 import * as DiffMatchPatch from 'diff-match-patch-js-browser-and-nodejs/diff_match_patch.js';
 import { debounce } from 'debounce'
 import { watchFile } from '../utils/fs'
@@ -11,6 +11,18 @@ export default function initialize(cache = {}, dependencies = {}) {
     const updateCache = ({ key, value }) => value ? cache[key] = value : delete cache[key]
 
     const triggerBuild = debounce((cache, deps) => {
+        
+        editor.call('assets:list')
+            .filter(isWatchableFile)
+            .forEach(asset => {
+                console.log(asset.get('name'), asset.get('exclude'))
+                // Mark source files to be excluded from the launcher
+                const uid = asset.get('id')
+                const doc = connection.get('assets', uid)
+                if (!asset.get('exclude')) doc.submitOp({ p: ['exclude'], oi:true })
+                if (asset.get('preload')) doc.submitOp({ p: ['preload'], oi:false })
+            })
+
         window.postMessage({ message:'pcpm:build', data: { cache, deps }})
     }, 200)
 
@@ -19,8 +31,9 @@ export default function initialize(cache = {}, dependencies = {}) {
         triggerBuild(cache, dependencies)
     }
 
-    const watchFiles = async _ => {
+    const watchAllExistingFiles = async _ => {
         // Load the initial available files and listen for changes
+
         const initialFiles = await Promise.all(editor.call('assets:list')
             .filter(isWatchableFile)
             .map(asset => watchFile(asset, incrementalBuild)))
@@ -31,7 +44,7 @@ export default function initialize(cache = {}, dependencies = {}) {
         triggerBuild(cache, dependencies)
     }
 
-    watchFiles()
+    watchAllExistingFiles()
 
     /*
     *  Listen for compiler events

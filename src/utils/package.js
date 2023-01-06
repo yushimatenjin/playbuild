@@ -1,4 +1,4 @@
-import { findAsset, isPkgJson } from '../utils.js'
+import { findAsset, isPkgJson } from './utils.js'
 import path from 'path-browserify'
 
 const resolvePath = (asset, altPath) => {

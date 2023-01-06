@@ -1,5 +1,5 @@
 
-import { findAsset, isBuildFile } from './utils'
+import { findAsset, isBuildFile } from './utils/utils'
 
 // When the build is updated re-parse in the editor to elinate any incorrect errors that are flagged
 editor.on('assets:load', _ => {
