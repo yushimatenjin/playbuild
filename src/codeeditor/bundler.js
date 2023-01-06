@@ -15,7 +15,6 @@ export default function initialize(cache = {}, dependencies = {}) {
         editor.call('assets:list')
             .filter(isWatchableFile)
             .forEach(asset => {
-                console.log(asset.get('name'), asset.get('exclude'))
                 // Mark source files to be excluded from the launcher
                 const uid = asset.get('id')
                 const doc = connection.get('assets', uid)
