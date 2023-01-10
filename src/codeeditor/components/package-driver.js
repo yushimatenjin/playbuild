@@ -2,6 +2,20 @@ import { diff2Op  } from '../../utils/utils'
 import { getPkgJson } from '../../utils/package'
 import PackageManagerSettings from './package-manager'
 import * as DiffMatchPatch from 'diff-match-patch-js-browser-and-nodejs/diff_match_patch.js';
+import { Panel } from '@playcanvas/pcui';
+
+// class DependenciesPanel extends Panel {
+
+//     constructor(){
+//         super({
+//             collapsed: false,
+//             collapsible: true,
+//             removable: false,
+//             headerText: 'DEPENDENCIES'
+//         })
+
+//     }
+// }
 
 class PackageJsonDriver {
 

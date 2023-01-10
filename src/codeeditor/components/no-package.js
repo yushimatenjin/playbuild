@@ -1,20 +1,25 @@
-import { createPackageJson } from '../utils/package'
+import { createPackageJson } from '../../utils/package'
 
 export default class NoPackageJson extends pcui.Container {
 
     constructor(){
-        super(arguments)
+        super()
+
+        this.class.add('pcui-infobox');
 
         const noPackageErrorPanel = new pcui.InfoBox({
-            icon: 'E218',
-            title: 'No Package.json found',
+            icon: 'E410',
+            title: 'Modules Disabled',
             text: 'A valid package.json must be included at the root of the asset registry'
         })
+        // noPackageErrorPanel.class.remove('pcui-infobox');
 
         const addPackageJsonBtn = new pcui.Button({
-            icon: 'E120',
-            text: 'Add package.json'
+            // icon: 'E120',
+            text: 'Create package.json'
         })
+
+        
 
         addPackageJsonBtn.on('click', async _ => {
             addPackageJsonBtn.enabled = false
@@ -24,7 +29,8 @@ export default class NoPackageJson extends pcui.Container {
         })
 
         noPackageErrorPanel.flex = true
-        noPackageErrorPanel.error = true
+        noPackageErrorPanel.flexDirection = 'column'
+        // noPackageErrorPanel.error = true
 
         this.append(noPackageErrorPanel)
         this.append(addPackageJsonBtn)

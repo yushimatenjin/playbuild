@@ -6,38 +6,18 @@ import { Panel, Container, TextInput, InfoBox } from '@playcanvas/pcui'
 
 const MAX_RESULTS = 5
 const MIN_SEARCH_NUM_CHAR = 3
-const ATTRIBUTES = [
-    {
-        type:'string',
-        alias: 'dep',
-        args: {
-            keyChange: true,
-            placeholder: 'Add Dependency',
-        }
-    },
-    {
-        type: 'container',
-        alias: 'results',
-        args: {
-            hidden: true
-        }
-    },
-    {
-        type: 'container',
-        alias: 'installed'
-    },
-]
         
-        
-export default class PackageManagerSettings extends Panel {
+export default class PackageManagerSettings extends Container {
 
     constructor(){
-        super({
-            collapsed: false,
-            collapsible: true,
-            removable: false,
-            headerText: 'PACKAGES'
-        })
+
+        super()
+        // super({
+        //     collapsed: false,
+        //     collapsible: true,
+        //     removable: false,
+        //     headerText: 'PACKAGES'
+        // })
 
         let currentSearch
         const searchInput = new TextInput({keyChange: true, placeholder: 'Add Dependency'})
