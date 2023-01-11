@@ -1,6 +1,4 @@
 // import NoPackageJson from './no-package';
-// import * as DiffMatchPatch from 'diff-match-patch-js-browser-and-nodejs/diff_match_patch.js';
-// import { diff2Op, findAsset, isPkgJson } from '../utils';
 import PackagePanel from './package-panel';
 import { Container, TextInput, InfoBox } from '@playcanvas/pcui'
 import '../styles/main.css'
