@@ -14,7 +14,7 @@ export default class NoPackageJson extends pcui.Container {
             icon: 'E410',
             title: 'Modules Disabled',
             unsafe: true,
-            text: "To use playcanvas modules you must create a <span class='font-bold'>package.json</span> in the root of your project. Add one by clicking the button below.<br><br><a href='https://github.com/wearekuva/pcpm-private/wiki/Getting-Started' target='_blank'>Learn more</a> about PlayCanvas modules.",
+            text: "To use playcanvas modules you must create a <span class='font-bold'>package.json</span> in the root of your project. Add one by clicking the button below.<br><br><a href='https://github.com/marklundin/pcpm#getting-startedd' target='_blank'>Learn more</a> about PlayCanvas modules.",
         })
         
         noPackageErrorPanel.dom.style.border = 'none'
