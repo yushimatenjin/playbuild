@@ -46,7 +46,7 @@ export default unpkgPathPlugin = (p) => {
                     cache[path] = contents
 
                     return {
-                        loader: "jsx",
+                        loader: "tsx",
                         contents: new Uint8Array(contents),
                     };
                 });

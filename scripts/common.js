@@ -1,7 +1,7 @@
 import copyStaticFiles from 'esbuild-copy-static-files'
 
 export default {
-    entryPoints: ['./src/contentscripts', './src/serviceworkers', './src/ipcpm', './src/codeeditor/editor', './src/error-handler' ],
+    entryPoints: ['./src/contentscripts', './src/serviceworkers', './src/ipcpm', './src/codeeditor/editor'],
     outdir: 'build',
     treeShaking: true,
     define: { DEBUG: 'false' },

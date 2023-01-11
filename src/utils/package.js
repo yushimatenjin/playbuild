@@ -42,34 +42,44 @@ export const watchPkgJson = async onChange => {
 
     const onAssetRemoved = asset => {
         editor.unbind('assets:remove', onAssetRemoved)
-        asset.unbind('file.hash:set', onAssetContentChanged)
+        asset.unbind('file.hash:set', asset._onAssetContentChanged)
         editor.on('assets:add', onAssetAdded)
-        asset.once('name:set', _ => onAssetAdded(asset))
-        asset.once('path:set', _ => onAssetAdded(asset))
+        asset._onAssetAdded = _ => onAssetAdded(asset)
+        asset.once('name:set', asset._onAssetAdded)
+        asset.once('path:set', asset._onAssetAdded)
         onChange(null)
     }
 
-    const onAssetContentChanged = _ => {
+    const onAssetContentChanged = asset => {
 
+        // const asset = findAsset(isPkgJson)
         const uid = asset.get('id')
         const doc = connection.get('documents', uid)
-        if(doc?.data) onChange(doc.data)
+        if(doc?.data) onChange(JSON.parse(doc.data))
     }
     
     const onAssetAdded = async asset => {
         if(isPkgJson(asset)){
             editor.on('assets:remove', onAssetRemoved)
-            asset.on('file.hash:set', onAssetContentChanged)
-            editor.unbind('assets:add', onAssetAdded)
-            asset.once('name:set', _ => onAssetRemoved(asset))
-            asset.once('path:set', _ => onAssetRemoved(asset))
+            
+            asset._onAssetContentChanged = _ => onAssetContentChanged(asset)
+            asset.on('file.hash:set', asset._onAssetContentChanged)
+            editor.unbind('assets:add', asset._onNamePathChange)
+
+            asset._onAssetRemoved = _ => onAssetRemoved(asset)
+            asset.once('name:set', asset._onAssetRemoved)
+            asset.once('path:set', asset._onAssetRemoved)
+            // asset.once('name:set', _ => onAssetRemoved(asset))
+            // asset.once('path:set', _ => onAssetRemoved(asset))
             const pkg = await watchJson(asset)
             onChange(pkg)
 
         } else {
 
-            asset.once('name:set', _ => onAssetAdded(asset))
-            asset.once('path:set', _ => onAssetAdded(asset))
+            asset._onAssetAdded = _ => onAssetAdded(asset)
+
+            asset.once('name:set', asset._onAssetAdded)
+            asset.once('path:set', asset._onAssetAdded)
         }
     }
     

@@ -42,7 +42,7 @@ editor.once('assets:load', _ => {
         collapsed: false,
         collapsible: true,
         removable: false,
-        headerText: 'DEPENDENCIES'
+        headerText: 'LIBRARIES'
     })
     panel.append(noPkgInfo)
 

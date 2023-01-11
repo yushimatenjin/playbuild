@@ -30,7 +30,7 @@
 		"js": ["contentscripts.js"]
 	}],
     "web_accessible_resources": [{
-		"resources": [ "ipcpm.js", "codeeditor/editor.js", "compiler.wasm" ],
+		"resources": [ "ipcpm.js", "codeeditor/editor.js", "codeeditor/editor.css", "compiler.wasm" ],
 		"matches": [ "https://playcanvas.com/*" ]
 	}]
 }

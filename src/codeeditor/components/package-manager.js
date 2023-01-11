@@ -2,7 +2,8 @@
 // import * as DiffMatchPatch from 'diff-match-patch-js-browser-and-nodejs/diff_match_patch.js';
 // import { diff2Op, findAsset, isPkgJson } from '../utils';
 import PackagePanel from './package-panel';
-import { Panel, Container, TextInput, InfoBox } from '@playcanvas/pcui'
+import { Container, TextInput, InfoBox } from '@playcanvas/pcui'
+import '../styles/main.css'
 
 const MAX_RESULTS = 5
 const MIN_SEARCH_NUM_CHAR = 3
@@ -12,23 +13,35 @@ export default class PackageManagerSettings extends Container {
     constructor(){
 
         super()
-        // super({
-        //     collapsed: false,
-        //     collapsible: true,
-        //     removable: false,
-        //     headerText: 'PACKAGES'
-        // })
 
         let currentSearch
-        const searchInput = new TextInput({keyChange: true, placeholder: 'Add Dependency'})
+        const searchInput = new TextInput({ keyChange: true, placeholder: 'Add Library' })
         const resultsCont = new Container({ hidden: true })
+        this.info = new InfoBox({
+            icon: 'E138',
+            unsafe: true,
+            title: 'No Libraries installed',
+            text: "Use the search above to find and install libs from the <a href='https://www.npmjs.com/' target='_blank'>npm</a> registry"
+        })
+        this.noResults = new InfoBox({
+            icon: 'E395',
+            // unsafe: true,
+            // title: 'No Dependencies installed',
+            hidden : true,
+            text: "It looks like there aren't any matches for that query"
+        })
+
         this.installedPkgsCont = new Container()
         this.deps = {}
-
+        
         this.append(searchInput)
+        this.append(this.info)
+        this.append(this.noResults)
         this.append(resultsCont)
         this.append(this.installedPkgsCont)
         
+        // Set Input styles
+        searchInput.dom.setAttribute('data-icon', String.fromCodePoint(parseInt('E129', 16)));
         searchInput.style.width = 'calc(100% - 12px)'
         this.installedPkgsCont.style.margin = '3px 8px'
 
@@ -53,6 +66,15 @@ export default class PackageManagerSettings extends Container {
             this.emit('add', pkg)
         }
 
+        searchInput.on('focus', _ => {
+            this.info.hidden = true
+        })
+
+        searchInput.on('blur', _ => {
+            this.noResults.hidden = true
+            this.info.hidden = Object.keys(this.deps).length > 0
+        })
+
 
         searchInput.on('change', async searchTerm => {
             if(currentSearch === searchTerm) return
@@ -63,6 +85,8 @@ export default class PackageManagerSettings extends Container {
             
             if(currentSearch !== searchTerm) return
             
+            this.noResults.hidden = objects.length > 0
+
             resultsCont.hidden = false
             results.forEach(info => info.hidden = true)
             
@@ -95,6 +119,8 @@ export default class PackageManagerSettings extends Container {
         // dedupe the keys
         const uniqueDeps = [...new Set(Object.keys(deps ?? {}))];
         const currentDeps = Object.keys(this.deps)
+
+        this.info.hidden = uniqueDeps.length > 0
 
         // Remove any packages in our current state that do not exist in the new state
         currentDeps?.forEach( name  => {

@@ -40,7 +40,7 @@ const build = async (files, deps) => {
                 bundle: true,
                 platform: 'browser',
                 external: ['fs', 'path'],
-                loader: { '.js': 'jsx' },
+                loader: { '.js': 'tsx' },
                 target: ['es6'],
                 // logLevel: 'silent',
                 // sourcemap: 'inline',
@@ -109,10 +109,16 @@ window.addEventListener('message', ({ data }) => {
 // inject script
 const isCodeEditor = location.href.includes('/editor/code')
 
-// const isLauncher = !isEditor && location.href.includes('://launch.playcanvas.com/')
-var s = document.createElement('script');
+// Apply CSS
+if (isCodeEditor) {
+    var css = document.createElement('link');
+    css.type = 'text/css';
+    css.rel = 'stylesheet';
+    css.href = chrome.runtime.getURL('./codeeditor/editor.css');
+    (document.head || document.documentElement).appendChild(css);
+}
+
+const s = document.createElement('script');
 s.src = chrome.runtime.getURL(isCodeEditor ? './codeeditor/editor.js' : 'ipcpm.js');
-s.onload = function() {
-    this.remove();
-};
+s.onload = function() { this.remove() };
 (document.head || document.documentElement).appendChild(s);

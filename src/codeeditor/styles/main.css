@@ -1,0 +1,9 @@
+.pcui-text-input[data-icon]:before {
+    content: attr(data-icon);
+    font-weight: 100;
+    font-size: inherit;
+    margin-left: 4px;
+    height: 33px;
+    vertical-align: sub;
+    font-family: "pc-icon";
+  }
