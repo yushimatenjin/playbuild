@@ -28,19 +28,13 @@ export default class NoPackageJson extends pcui.Container {
 
         addPackageJsonBtn.dom.style['margin-left'] = '2rem'
 
-        
-
         addPackageJsonBtn.on('click', async _ => {
             addPackageJsonBtn.enabled = false
             const pkg = await createPackageJson()
             this.emit('package:created', pkg)
             addPackageJsonBtn.enabled = true
         })
-
-        // noPackageErrorPanel.flex = true
-        // noPackageErrorPanel.flexDirection = 'column'
-        // noPackageErrorPanel.error = true
-
+        
         this.append(noPackageErrorPanel)
         this.append(addPackageJsonBtn)
     }

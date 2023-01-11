@@ -59,18 +59,17 @@ export const watchPkgJson = async onChange => {
     }
     
     const onAssetAdded = async asset => {
+        console.log(asset.get('name'), isPkgJson(asset))
         if(isPkgJson(asset)){
-            editor.on('assets:remove', onAssetRemoved)
+            editor.once('assets:remove', asset => isPkgJson(asset) && onAssetRemoved(asset))
             
             asset._onAssetContentChanged = _ => onAssetContentChanged(asset)
             asset.on('file.hash:set', asset._onAssetContentChanged)
-            editor.unbind('assets:add', asset._onNamePathChange)
+            editor.unbind('assets:add', onAssetAdded)
 
             asset._onAssetRemoved = _ => onAssetRemoved(asset)
             asset.once('name:set', asset._onAssetRemoved)
             asset.once('path:set', asset._onAssetRemoved)
-            // asset.once('name:set', _ => onAssetRemoved(asset))
-            // asset.once('path:set', _ => onAssetRemoved(asset))
             const pkg = await watchJson(asset)
             onChange(pkg)
 

@@ -58,6 +58,7 @@ editor.once('assets:load', _ => {
                 panel.append(driver.panel)
                 if(noPkgInfo.parent) panel.remove(noPkgInfo)
             }
+            console.log(pkg?.dependencies)
             driver.update(pkg?.dependencies)
             bundler.updateDeps(pkg?.dependencies, true)
             
