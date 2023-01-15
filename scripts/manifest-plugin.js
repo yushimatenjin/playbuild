@@ -24,9 +24,12 @@ export default debug => ({
 
         build.onEnd(async result => {
 
-            console.log('manifest!!!!')
             const source = await fs.readFile( './src/manifest.json', "utf8");
+            const pkgJson = await fs.readFile( './package.json', "utf8");
+
+            const { version } = JSON.parse(pkgJson)
             const manifest = JSON.parse(source)
+            manifest.version = version
 
             if(!debug) {
                 delete manifest.permissions // set the array to emppty for production

@@ -1,6 +1,6 @@
 {
   "name": "pcpm",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A Package Manager Extension for PlayCanvas",
   "main": "index.js",
   "scripts": {
