@@ -15,3 +15,7 @@
 	* Compiler/Bundler now works with typescript and jsx files
 
 		Typecript and JSX has now been enabled by default in the compiler, so it will correctly bundle these files. However there the PC Monaco editor is not linting some of these files correctly which defeats much of the need for typescript. If/when the editor can be updated though, this should automatically translate without any code changes needed to pcpm
+
+## 0.0.1
+
+	Initial release. Lots of stuff, too much to mention

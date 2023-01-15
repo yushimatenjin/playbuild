@@ -1,0 +1,44 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions: {}
+jobs:
+  release:
+    permissions:
+      contents: write  #  to create a release (actions/create-release)
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Get Version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@main
+
+      - name: Extract changelog
+        run: |
+          CHANGELOG=$(awk -v ver=${{ steps.package-version.outputs.current-version }} '/^## / { if (p) { exit }; if ($2 == ver) { p=1; next} } p' CHANGELOG.md)
+          echo "CHANGELOG<<EOF" >> $GITHUB_ENV
+          echo "$CHANGELOG" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          
+      - run: yarn install && yarn run build
+
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag: ${{ steps.package-version.outputs.current-version }}
+          artifactErrorsFailBuild: true
+          body: ${{ env.CHANGELOG }}
+          draft: true
+          prerelease: true
