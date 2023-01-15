@@ -39,7 +39,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag: ${{ steps.package-version.outputs.current-version }}
-          artifactErrorsFailBuild: true
           body: ${{ env.CHANGELOG }}
-          draft: true
-          prerelease: true
+          artifacts: 'pcpm.zip'
+          replacesArtifacts : true
+          makeLatest: true
+          artifactErrorsFailBuild: true
+          draft: false
+          prerelease: false
