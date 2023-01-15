@@ -34,7 +34,7 @@ jobs:
       - run: yarn install && yarn run build
 
       - name: Create Release
-        uses: actions/create-release@latest
+        uses: ncipollo/release-action@latest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
