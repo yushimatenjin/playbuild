@@ -3,6 +3,7 @@ name: Release
 on:
   push:
     tags: ['v*']
+  workflow_dispatch
 
 permissions: {}
 jobs:
@@ -33,7 +34,7 @@ jobs:
       - run: yarn install && yarn run build
 
       - name: Create Release
-        uses: actions/create-release@v1
+        uses: actions/create-release@latest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
