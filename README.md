@@ -1,32 +1,22 @@
-<div align="center">
+<div >
   <br>
-  <img src="./static/icon.png" alt="PCPM" width="200">
+  <img src="./static/icon.png" alt="PCPM" width="100">
   <br>
-  <h3 align="center">A Package Manager for PlayCanvas</h3>
+  <h3 >A Package Manager for PlayCanvas</h3>
+  <h4><a href='https://github.com/marklundin/pcpm/wiki/Getting-Started'>Getting Started</a></h4>
+</div
+  
+PCPM is an extension for the PlayCanvas Editor that adds support for Javascript Modules, TypeScript JSX and more. Code like you would in a regular webapp
 
-</div>
-
-<!-- <p align="center"> -->
-<!--   <a href="#key-features">Key Features</a> • -->
-<!--   <a href="#getting-started">Getting Started</a> • -->
-<!--   <a href="#download">Download</a> • -->
-<!--   <a href="#credits">Credits</a> • -->
-<!--   <a href="#related">Related</a> • -->
-<!--   <a href="#license">License</a> -->
-<!-- </p> -->
-
-<!--PCPM is an extension for the PlayCanvas Editor that adds support for Javascript Modules, TypeScript JSX and more. Your PlayCanvas scripts become JS modules which means you can import and export code.-->
-
-## Why?
-When you're creating games in PlayCanvas you'll often find yourself wanting to import or share common code between files, or import some code from a 3rd party libray. Whilst there are a few ways to achieve this they often feel like a workaround. PCPM adds supports for js modules and allows you to import local code, install npm and use ~~TypeScript~~ and ~~JSX~~ in the code editor
+When you're creating games in PlayCanvas you'll often find yourself wanting to structure your code in a better way, seperating out utilities and config files, res-usable classes, or simply to import some code from a 3rd party libray. Whilst there are a few ways to achieve this they often feel like a workaround that don't quite line up with modern javsacript tooling. PCPM allows you to use js modules and npm libraries in your PlayCanvas projects, it supports all the usual features such as de-duping, minification and dead code removal and more. It also has preliminary support for JSX and TypeScript.
 
 ```javascript
-
-// JS Modules FTW!
-
+// Import code from other scripts
 import config from './config'
-import { weirdLerp } from './utils/math'
+
+// import npm libs
 import { firebaseApp } from 'firebase/app'
+import React from 'react'
 
 var MyScript = pc.createScript('myScript')
 
@@ -34,53 +24,26 @@ var MyScript = pc.createScript('myScript')
 MyScript.prototype.initialize = function() {
 
     // Import your own modules
-    const value = weirdLerp(20, 0, 1)
+    const key = config.firebaseKey
 
     // Use NPM modules
-    const app = firebaseApp(config)
+    const app = firebaseApp(key)
 }
 ```
 
-## Getting Started
+### How does this all work?
+PCPM contains a compiler that syncs with all scripts in your project and compiles them into a single file every time you save. Your asset registry is treated as a file system so local modules can be resolved aswell as remote modules which are loaded from a CDN.
 
-Grab the PCPM extension from the Chrome Webstore then open up or create a new project in PlayCanvas.
+### Gotchas & Known Issues
 
-PCPM is opt-in only. It will only run if a *package.json* file exists at the root of the asset registry. To initialize your project to use PCPM, open the **Package Manager Settings** in the Edittor Settings Panel and click the *'+ Add package.json'*.
+#### I can't use package XYZ
+In theory, any package from [NPM](https://www.npmjs.com/) should work out of the box, but in practice some modules may have some limitations or strong dependancies on how they're used. If there's a specific module not working for you, report an issue.
 
+#### I can't use a package with a wasm binary
+All remote packages are loaded from a CDN which means any hardcoded references to local wasm binaries may fail. Instead see if you can instantiate the binaries by pointing to a remote hosted CDN
 
+#### It always opens the built.js file when I hit edit in the editor
+Because of the way PlayCanvas associates scripts with particular assets and because all scripts are compiled into a built version, the editor will always open the built.js for any given script
 
-
-### Importing Modules
-
-PCPM upgrades your scripts to first class [js modules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import) which means you can export code from any script 
-
-```javascript 
-export const util
-```
-and import it into another
-```javascript 
-import { util } from './myutils'
-``` 
-
-### Import Packages
-
-![PCPM Package Manager](./static/package-manager.png)
-<br>
-
-Using the PCPM Search in the code editor you can also find and install any publicy hosted npm pacakges. You can them import the package and use it like any other module
-
-```javascript
-import lodash from 'lodash'
-import { firebaseApp } from 'firebase/app'
-
-const MyScript =  pc.createScript('myScript')
-```
-
-### TypeScript
-PCPM also proves experimental support for using TypeScript in your projects
-
-### JSX
-Experimental support for JSX is coming soon
-
-### Known Issues
-PCPM relies on the public [PlayCanvas Editor api](https://github.com/playcanvas/editor-api) & private internal api's, and as such, it's highly exposed to any updates to the PlayCanvas Editor. __Therefore things are subject to break and we'd advise caution using PCPM__. There are also a number of known inherent limitations that can cause [issues](https://github.com/wearekuva/pcpm-private/issues/4) using the code editor
+#### I can't install modules from github or from private accounts
+The semantics of modules in package.json doesn't map exactly to how they're used in local projects. This means that scoped imports such as @org/somemodule or [urls modules](https://docs.npmjs.com/cli/v8/configuring-npm/package-json#urls-as-dependencies) do not work for now. If in doubt, use the package manager UI rather than manually editing the package.json file
