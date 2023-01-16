@@ -35,16 +35,3 @@ When you're creating games in PlayCanvas you'll often find yourself wanting to s
 ### How does this all work?
 PlayBuild is a compiler built around [ESBuild](https://github.com/evanw/esbuild) that syncs with your project and compiles and bundles your code. Your asset registry is treated as a regular file system so local modules can be resolved and remote modules can be imported. There is no run-time dependancy on external CDN's.
 
-### Gotchas & Known Issues
-
-#### I can't use package XYZ
-In theory, any package from [NPM](https://www.npmjs.com/) should work out of the box, but in practice some modules may have some limitations or strong dependancies on how they're used. If there's a specific module not working for you, report an issue.
-
-#### I can't use a package with a wasm binary
-All remote packages are loaded from a CDN which means any hardcoded references to local wasm binaries may fail. Instead see if you can instantiate the binaries by pointing to a remote hosted CDN
-
-#### It always opens the built.js file when I hit edit in the editor
-Because of the way PlayCanvas associates scripts with particular assets and because all scripts are compiled into a built version, the editor will always open the built.js for any given script
-
-#### I can't install modules from github or from private accounts
-The semantics of modules in package.json doesn't map exactly to how they're used in local projects. This means that scoped imports such as @org/somemodule or [urls modules](https://docs.npmjs.com/cli/v8/configuring-npm/package-json#urls-as-dependencies) do not work for now. If in doubt, use the package manager UI rather than manually editing the package.json file
