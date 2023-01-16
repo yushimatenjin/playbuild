@@ -133,7 +133,8 @@ export default class PackageManagerSettings extends Container {
 
         uniqueDeps.forEach(async (name, i) => {
             if(currentDeps.includes(name)) return
-            const module = await fetch(`https://registry.npmjs.com/${name}`).then(r => r.json())
+            const reqOpts = { headers: { 'Accept': 'application/vnd.npm.install-v1+json' }}
+            const module = await fetch(`https://registry.npmjs.com/${name}`, reqOpts).then(r => r.json())
             const packagePanel = new PackagePanel(module, deps[name])
             packagePanel.class.add('layers-settings-panel-layer-panel');
             packagePanel.on('change', update => {
