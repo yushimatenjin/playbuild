@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.3
+
+The UI for installed packages has been updated so that you can now see the current installed package version aswell as changing it to any other release.
+
 ## 0.0.2
 
 * **UI Improvements**
