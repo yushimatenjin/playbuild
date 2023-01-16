@@ -1,9 +1,58 @@
 .pcui-text-input[data-icon]:before {
-    content: attr(data-icon);
-    font-weight: 100;
-    font-size: inherit;
-    margin-left: 4px;
-    height: 33px;
-    vertical-align: sub;
-    font-family: "pc-icon";
-  }
+  content: attr(data-icon);
+  font-weight: 100;
+  font-size: inherit;
+  margin-left: 4px;
+  height: 33px;
+  vertical-align: sub;
+  font-family: "pc-icon";
+}
+
+.remove-icon::before {
+  content: '';
+  font-weight: 50;
+  font-size: inherit;
+  color: inherit;
+  opacity: 0.6;
+  margin-left: 4px;
+  height: 33px;
+  vertical-align: bottom;
+  font-family: "pc-icon";
+}
+
+.help-icon::before {
+  content: '';
+  font-weight: 100;
+  opacity: 0.6;
+  font-size: inherit;
+  color: inherit;
+  margin-left: 4px;
+  height: 33px;
+  vertical-align: bottom;
+  font-family: "pc-icon";
+}
+
+.remove-icon {
+  margin-right: .2rem;
+}
+
+.remove-icon, .help-icon {
+  cursor: pointer;
+}
+
+.remove-icon:hover::before, .help-icon:hover::before {
+  opacity: 1;
+}
+
+.remove-icon:hover {
+  color: #f60
+}
+
+
+
+
+.pcui-pcpm-package {
+  background-color: #293538;
+  padding-left: .4rem;
+  padding-right: .4rem;
+}

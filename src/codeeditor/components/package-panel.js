@@ -1,39 +1,31 @@
-import { Panel, InfoBox } from '@playcanvas/pcui'
+import { Panel, SelectInput, Container, Element, Label } from '@playcanvas/pcui'
 
-const ATTRIBUTES = module => [
-    {
-        type: 'label',
-        label: module.description,
-    },
-]
+export default class PackagePanel extends Container {
+    constructor(module, version){
+        super({ flex: true, flexDirection: 'row', alignItems: 'center', class: 'pcui-pcpm-package' })
 
-export default class PackagePanel extends Panel {
-    constructor({ name, version, description }){
-        super({
-            headerText: name,
-            collapsible: true,
-            collapsed: true,
-            removable: true
+        const { name, versions, description, homepage } = module
+        const options = Object.keys(versions).map(v => ({ t: v, v}))
+        const title = new Label({ text: name, class: 'pcui-label' })
+        const help = new Container({ class: 'help-icon'})
+        const combo = new SelectInput({
+            width: '7rem',
+            defaultValue: version,
+            options,
         })
+        const remove = new Container({ class: 'remove-icon' })
         
-        this.info = new InfoBox({
-            title: version,
-            text: description,
-            icon: 'E410'
-        })
+        title.flexGrow = 1
+        title.style.fontSize = '12px'
+        combo.on('change', version => this.emit('change', { [name]: version }))
 
-        this.content.style.background = 'rgb(41, 53, 56)'
+        remove.on('click', _ => this.emit('click:remove'));
+        help.on('click', _ => window.open(`https://npmjs.com/pacakge/${name}`));
 
-        this.append(this.info)
-    }
+        this.append(title);
+        if(homepage) this.append(help);
+        this.append(combo);
+        this.append(remove);
 
-    set module({ name, version, description }){
-        this.headerText = name
-        this.info.title = version
-        this.info.text = description
-    }
-
-    get module(){
-        return { name: this.headerText, version: this.info.title, description: this.info.text }
     }
 }

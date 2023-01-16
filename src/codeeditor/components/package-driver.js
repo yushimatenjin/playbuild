@@ -10,6 +10,7 @@ class PackageJsonDriver {
         this.panel = new PackageManagerSettings()
         this.panel.on('add', p => this.addPackage(p))
         this.panel.on('remove', p => this.removePackage(p))
+        this.panel.on('update', p => this.addPackage(p))
         editor.call('layout.left').append(this.panel)
 
         window.postMessage({message: "pcpm:enabled", data: true })
@@ -19,8 +20,8 @@ class PackageJsonDriver {
         this.panel.updatePackages(deps)
     }
 
-    async addPackage(newPackage) {
-        
+    async updatePackage(newPkg) {
+
         const pkg = await getPkgJson()
         
         pkg.once('op', _ => {
@@ -30,37 +31,39 @@ class PackageJsonDriver {
         const data = JSON.parse(pkg.data)
         const diff = this.dmp.diff_main(
             pkg.data, 
-            JSON.stringify({ 
-                ...data,
-                dependencies:{
-                    ...data.dependencies,
-                    ...newPackage 
-                }
-            }, null, 4)
+            JSON.stringify(newPkg, null, 4)
             )
         const op = diff2Op(diff)  
 
         pkg.submitOp(op)
         pkg.emit('op', op, false)
+
+    }
+
+    async addPackage(newPackage) {
+        
+        const pkg = await getPkgJson()
+        
+        const data = JSON.parse(pkg.data)
+
+        this.updatePackage({ 
+            ...data,
+            dependencies:{
+                ...data.dependencies,
+                ...newPackage 
+            }
+        })
+
     }
 
     async removePackage(removedPackageName) {
         const pkg = await getPkgJson()
-        
-        pkg.once('op', _ => {
-            editor.call('realtime:send', 'doc:save:', parseInt(pkg.id, 10))
-        })
 
         const data = JSON.parse(pkg.data)
         if(!data.dependencies[removedPackageName]) return
         delete data.dependencies[removedPackageName]
 
-        const diff = this.dmp.diff_main(pkg.data, JSON.stringify(data, null, 4))
-        const op = diff2Op(diff)
-        pkg.submitOp(op)
-
-        // packageAsset.sync.emit('sync', op);
-        pkg.emit('op', op, false)
+        this.updatePackage(data)
     }
 
     destroy(){

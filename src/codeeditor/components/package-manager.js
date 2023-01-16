@@ -43,6 +43,8 @@ export default class PackageManagerSettings extends Container {
         searchInput.style.width = 'calc(100% - 12px)'
         this.installedPkgsCont.style.margin = '3px 8px'
 
+        resultsCont.style['background-color'] = '#1d292c'
+
         const results = Array.from(new Array(MAX_RESULTS)).map(_ => {
             const info = new InfoBox({
                 icon: 'E410',
@@ -131,9 +133,12 @@ export default class PackageManagerSettings extends Container {
 
         uniqueDeps.forEach(async (name, i) => {
             if(currentDeps.includes(name)) return
-            const module = await fetch(`https://registry.npmjs.com/${name}/${deps[name]}`).then(r => r.json())
-            const packagePanel = new PackagePanel(module)
+            const module = await fetch(`https://registry.npmjs.com/${name}`).then(r => r.json())
+            const packagePanel = new PackagePanel(module, deps[name])
             packagePanel.class.add('layers-settings-panel-layer-panel');
+            packagePanel.on('change', update => {
+                this.emit('update', update )
+            })
             packagePanel.on('click:remove', _ => {
                 packagePanel.parent.remove(packagePanel)
                 delete this.packagePanels[name]
