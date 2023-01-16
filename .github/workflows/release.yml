@@ -34,7 +34,7 @@ jobs:
       - name: Upload & release
         uses: mnao305/chrome-extension-upload@v4.0.1
         with:
-          file-path: pcpm.zip
+          file-path: playbuild.zip
           extension-id: nehnoidafglmienfkfgghgokkccbpfap
           client-id: ${{ secrets.GCP_CLIENT_ID }}
           client-secret: ${{ secrets.GCP_CLIENT_SECRET }}
@@ -47,7 +47,7 @@ jobs:
         with:
           tag: v${{ steps.package-version.outputs.current-version }}
           body: ${{ env.CHANGELOG }}
-          artifacts: 'pcpm.zip'
+          artifacts: 'playbuild.zip'
           replacesArtifacts : false
           makeLatest: true
           artifactErrorsFailBuild: true

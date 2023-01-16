@@ -24,7 +24,7 @@ export const diff2Op = diffs => {
 const PACKAGE_JSON_NAME = 'package.json'
 const BUILD_DIR_NAME = '.pcpm'
 const BUILD_FILE_NAME = 'built.js'
-const BANNER = '/* BUILT WITH PCPM */'
+const BANNER = '/* Made with PlayBuild */'
 
 export const isPkgJson = asset =>
   asset.get &&
@@ -135,14 +135,6 @@ export const getBuildFile = (content = BANNER) => {
       }
     })
 
-    // editor.call('assets:create:script', {
-    //   filename: BUILD_FILE_NAME,
-    //   boilerplate: false,
-    //   content: '/* BUILT WITH PCPM */',
-    //   parent: null, 
-    //   noSelect: true,
-    //   callback: asset => resolve(asset)
-    // })
   })
 }
 

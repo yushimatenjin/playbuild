@@ -1,7 +1,7 @@
 {
-  "name": "pcpm",
+  "name": "playbuild",
   "version": "0.0.2",
-  "description": "A Package Manager Extension for PlayCanvas",
+  "description": "A compiler, bundler and package manager for PlayCanvas",
   "main": "index.js",
   "scripts": {
     "dev": "node ./scripts/dev.js",

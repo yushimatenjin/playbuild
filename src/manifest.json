@@ -1,7 +1,7 @@
 {
-	"name": "PCPM",
+	"name": "PlayBuild",
 	"version": "0.0.2",
-	"description": "A Package Manager Extension for PlayCanvas",
+	"description": "A compiler, bundler and package manager for PlayCanvas that adds support for Javascript Modules, TypeScript JSX and all the regular features of modern web tooling. ",
 	"manifest_version": 3,
 	"icons": { 
 		"16": "icon-16.png",

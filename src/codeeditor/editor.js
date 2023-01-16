@@ -22,7 +22,7 @@ window.addEventListener('message', async ({ data }) => {
         case 'pcpm:enabled' :
   
             const enabled = data.data
-            editor.call('status:log', `PCPM is ${enabled ? 'enabled' : 'disabled'}`)
+            editor.call('status:log', `PlayBuild is ${enabled ? 'enabled' : 'disabled'}`)
     
             break
         default: break

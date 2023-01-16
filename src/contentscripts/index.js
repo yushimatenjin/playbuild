@@ -48,7 +48,7 @@ const build = async (files, deps) => {
                 write: false,
                 incremental: true,
                 banner: {
-                    js: `/* Bundled by PCPM */`,
+                    js: `/* Made with PlayBuild */`,
                 },
             })
         console.timeEnd('Full Build')

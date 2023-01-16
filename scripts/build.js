@@ -11,7 +11,7 @@ esbuild.build({
     // write: false,
     // out: 'out'
 }).then(async result => {
-    await zip('./build', './pcpm.zip');
+    await zip('./build', './playbuild.zip');
     console.log('Build Successful...')
 })
 
