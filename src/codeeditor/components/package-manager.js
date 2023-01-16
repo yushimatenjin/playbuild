@@ -43,8 +43,6 @@ export default class PackageManagerSettings extends Container {
         searchInput.style.width = 'calc(100% - 12px)'
         this.installedPkgsCont.style.margin = '3px 8px'
 
-        resultsCont.style['background-color'] = '#1d292c'
-
         const results = Array.from(new Array(MAX_RESULTS)).map(_ => {
             const info = new InfoBox({
                 icon: 'E410',
