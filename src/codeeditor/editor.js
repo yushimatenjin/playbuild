@@ -50,26 +50,26 @@ editor.once('assets:load', _ => {
 
     watchPkgJson(async pkg => {
 
-        if(!!pkg) {
+      if(!!pkg) {
 
-            if(!driver && !bundler) {
-                driver = new PackageJsonDriver()
-                bundler = initializeBundler()
-                panel.append(driver.panel)
-                if(noPkgInfo.parent) panel.remove(noPkgInfo)
-            }
-            driver.update(pkg?.dependencies)
-            bundler.updateDeps(pkg?.dependencies, true)
-            
-        } else if (driver && bundler) {
-
-            panel.remove(driver.panel)
-            if(!noPkgInfo.parent) panel.append(noPkgInfo)
-
-            driver.destroy()
-            bundler.destroy()
-            driver = null
-            bundler = null
+        if(!driver && !bundler) {
+          driver = new PackageJsonDriver()
+          bundler = initializeBundler({}, pkg?.dependencies, pkg?.playbuild)
+          panel.append(driver.panel)
+          if(noPkgInfo.parent) panel.remove(noPkgInfo)
         }
+        driver.update(pkg?.dependencies)
+        bundler.update(pkg?.dependencies, pkg?.playbuild)
+          
+      } else if (driver && bundler) {
+
+        panel.remove(driver.panel)
+        if(!noPkgInfo.parent) panel.append(noPkgInfo)
+
+        driver.destroy()
+        bundler.destroy()
+        driver = null
+        bundler = null
+      }
     })
 })

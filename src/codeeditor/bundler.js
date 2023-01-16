@@ -3,14 +3,14 @@ import * as DiffMatchPatch from 'diff-match-patch-js-browser-and-nodejs/diff_mat
 import { debounce } from 'debounce'
 import { watchFile } from '../utils/fs'
 
-export default function initialize(cache = {}, dependencies = {}) {
+export default function initialize(cache = {}, dependencies = {}, opts = {}) {
 
     const dmp = new DiffMatchPatch.diff_match_patch()
     const connection = editor.call('realtime:connection')
 
     const updateCache = ({ key, value }) => value ? cache[key] = value : delete cache[key]
 
-    const triggerBuild = debounce((cache, deps) => {
+    const triggerBuild = debounce((cache, deps, opts) => {
         
         editor.call('assets:list')
             .filter(isWatchableFile)
@@ -22,12 +22,12 @@ export default function initialize(cache = {}, dependencies = {}) {
                 if (asset.get('preload')) doc.submitOp({ p: ['preload'], oi:false })
             })
 
-        window.postMessage({ message:'pcpm:build', data: { cache, deps }})
+        window.postMessage({ message:'pcpm:build', data: { cache, deps, opts }})
     }, 200)
 
     const incrementalBuild = change => {
         updateCache(change)
-        triggerBuild(cache, dependencies)
+        triggerBuild(cache, dependencies, opts)
     }
 
     const watchAllExistingFiles = async _ => {
@@ -40,7 +40,7 @@ export default function initialize(cache = {}, dependencies = {}) {
         // Update the cache with the initial files
         initialFiles.forEach(({ key, value }) => cache[key] = value)
 
-        triggerBuild(cache, dependencies)
+        triggerBuild(cache, dependencies, opts)
     }
 
     watchAllExistingFiles()
@@ -90,8 +90,6 @@ export default function initialize(cache = {}, dependencies = {}) {
     const onAssetAddded = async asset => {
         
         // Source scripts included in the build must be excluded from PC launcher
-        // const doc = connection.get('assets', asset.get('id'))
-        // doc.submitOp({ p: ['exclude'], oi:true })
         if(!isWatchableFile(asset)) return
         watchFile(asset, incrementalBuild)
         
@@ -109,14 +107,11 @@ export default function initialize(cache = {}, dependencies = {}) {
     window.addEventListener('message', onWindowPostMessage )
     editor.on('assets:add', onAssetAddded)
     editor.on('assets:remove', onAssetRemoved)
-    
-    //Trigger Initial Build
-    // triggerBuild(cache, dependencies)
 
     return {
-        updateDeps: (deps, shouldBuild = true) => {
+        update: (deps, opts = {}) => {
             dependencies = deps
-            if(shouldBuild && Object.keys(cache).length > 0 ) triggerBuild(cache, dependencies)    
+            if( Object.keys(cache).length > 0 ) triggerBuild(cache, dependencies, opts)    
         },
         destroy: _ => {
 

@@ -143,3 +143,20 @@ export const resolvePath = (asset, altPath) => {
     .map(id => editor.call('assets:get', id).get('name')).join('/')
   return path.resolve('/' + relativePath + '/' + asset.get('file.filename'))
 }
+
+// Shallow Object compare
+export const equals = (a, b) => {
+  if (a === b) return true
+  if (!(a instanceof Object) || !(b instanceof Object)) return false
+
+  const keys = Object.keys(a)
+  const length = keys.length;
+
+  for (var i = 0; i < length; i++)
+    if (!(keys[i] in b)) return false
+
+  for (var i = 0; i < length; i++)
+    if (a[keys[i]] !== b[keys[i]]) return false
+
+  return length === Object.keys(b).length
+}

@@ -1,4 +1,5 @@
 import * as esbuild from 'esbuild-wasm'
+import { equals } from '../utils/utils'
 import cachePlugin from './cache-plugin'
 import unpkgPathPlugin from './unpkg-path-plugin'
 
@@ -15,74 +16,79 @@ const withIndex = files => {
 
 let esBuildInitialised = false
 let incrementalBuild
-let updateFileCache, updateModules
-const build = async (files, deps) => {
+let updateFileCache, updateModules, options
+const build = async (files, deps, opts) => {
 
-    if(!esBuildInitialised){
-        await esbuild.initialize({
-            worker: false,
-            wasmURL: chrome.runtime.getURL('./compiler.wasm')
-        }) 
-        esBuildInitialised = true
-    }
+  options = opts
 
-    const { plugin : filePlugin, updateFiles } = cachePlugin(withIndex(files))
-    const { plugin : unpkgPlugin, updatePackages } = unpkgPathPlugin(deps)
-    
-    updateFileCache = files => updateFiles(withIndex(files))
-    updateModules = updatePackages  
-    
-    try {
-        console.time('Full Build')
-        const { outputFiles, errors, rebuild } = await esbuild.build({
-                entryPoints: ['/index.js'],
-                plugins: [unpkgPlugin, filePlugin],
-                bundle: true,
-                platform: 'browser',
-                external: ['fs', 'path'],
-                loader: { '.js': 'tsx' },
-                target: ['es6'],
-                // logLevel: 'silent',
-                // sourcemap: 'inline',
-                // sourceRoot: 'https://launch.playcanvas.com/api/assets/files/',
-                write: false,
-                incremental: true,
-                banner: {
-                    js: `/* Made with PlayBuild */`,
-                },
-            })
-        console.timeEnd('Full Build')
-        incrementalBuild = rebuild
-    
-        if(!errors.length) window.postMessage({ message: 'pcpm:build:done', data: outputFiles[0].text })
+  if(!esBuildInitialised){
+    await esbuild.initialize({
+      worker: false,
+      wasmURL: chrome.runtime.getURL('./compiler.wasm')
+    }) 
+    esBuildInitialised = true
+  }
 
-    } catch(e) {
-        console.timeEnd('Full Build')
-        window.postMessage({ message: 'pcpm:build:error', data: e.errors })
-    }
+  const { plugin : filePlugin, updateFiles } = cachePlugin(withIndex(files))
+  const { plugin : unpkgPlugin, updatePackages } = unpkgPathPlugin(deps)
+  
+  updateFileCache = files => updateFiles(withIndex(files))
+  updateModules = updatePackages 
+  
+  try {
+    console.time('Full Build')
+    const { outputFiles, errors, rebuild } = await esbuild.build({
+      entryPoints: ['/index.js'],
+      plugins: [unpkgPlugin, filePlugin],
+      bundle: true,
+      platform: 'browser',
+      external: ['fs', 'path'],
+      loader: { '.js': 'tsx' },
+      target: ['es6'],
+      // logLevel: 'silent',
+      // sourcemap: 'inline',
+      // sourceRoot: 'https://launch.playcanvas.com/api/assets/files/',
+      write: false,
+      incremental: true,
+      banner: {
+          js: `/* Made with PlayBuild */`,
+      },
+    })
+    console.timeEnd('Full Build')
+    incrementalBuild = rebuild
+
+    if(!errors.length) window.postMessage({ message: 'pcpm:build:done', data: outputFiles[0].text })
+
+  } catch(e) {
+      console.timeEnd('Full Build')
+      window.postMessage({ message: 'pcpm:build:error', data: e.errors })
+  }
     
 }
 
 // Performs an incremental build
-const rebuild = async ({ cache, deps }) => {
+const rebuild = async ({ cache, deps, opts }) => {
 
-    try{
+  const requiresFullBuild = !equals(options, opts)
+  console.log(equals(options, opts), options, opts)
 
-        if(!incrementalBuild) build(cache, deps)
-        else{
-            updateFileCache(cache)
-            updateModules(deps)
-            console.time('Incremental Build')
-            const { outputFiles, errors } = await incrementalBuild()
-            console.timeEnd('Incremental Build')
+  try{
 
-            if(!errors.length) window.postMessage({ message: 'pcpm:build:done', data: outputFiles[0].text })
-        }
+    if(!incrementalBuild || requiresFullBuild) build(cache, deps, opts)
+    else{
+      updateFileCache(cache)
+      updateModules(deps)
+      console.time('Incremental Build')
+      const { outputFiles, errors } = await incrementalBuild()
+      console.timeEnd('Incremental Build')
 
-    } catch(e) {
-        console.timeEnd('Incremental Build')
-        window.postMessage({ message: 'pcpm:build:error', data: e.errors })
+      if(!errors.length) window.postMessage({ message: 'pcpm:build:done', data: outputFiles[0].text })
     }
+
+  } catch(e) {
+    console.timeEnd('Incremental Build')
+    window.postMessage({ message: 'pcpm:build:error', data: e.errors })
+  }
 }
 
 let enabled = false
@@ -96,10 +102,6 @@ window.addEventListener('message', ({ data }) => {
         case 'pcpm:build' :
             if(!enabled) return
             rebuild(data.data)
-        // case 'pcpm:build:done' :
-        // case 'pcpm:build:error' :
-        // case 'pcpm:editor-loaded' :
-            // chrome.runtime.sendMessage(data)
             break
         default: break
     }
