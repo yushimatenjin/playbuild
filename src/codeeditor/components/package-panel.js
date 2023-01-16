@@ -1,19 +1,18 @@
-import { Panel, SelectInput, Container, Element, Label } from '@playcanvas/pcui'
 
-export default class PackagePanel extends Container {
+export default class PackagePanel extends pcui.Container {
     constructor(module, version){
         super({ flex: true, flexDirection: 'row', alignItems: 'center', class: 'pcui-pcpm-package' })
 
         const { name, versions, description, homepage } = module
         const options = Object.keys(versions).map(v => ({ t: v, v}))
-        const title = new Label({ text: name, class: 'pcui-label' })
-        const help = new Container({ class: 'help-icon'})
-        const combo = new SelectInput({
+        const title = new pcui.Label({ text: name, class: 'pcui-label' })
+        const help = new pcui.Container({ class: 'help-icon'})
+        const combo = new pcui.SelectInput({
             width: '7rem',
             defaultValue: version,
             options,
         })
-        const remove = new Container({ class: 'remove-icon' })
+        const remove = new pcui.Container({ class: 'remove-icon' })
         
         title.flexGrow = 1
         title.style.fontSize = '12px'

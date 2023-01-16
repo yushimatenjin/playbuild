@@ -112,16 +112,6 @@
   resolved "https://registry.yarnpkg.com/@esbuild/win32-x64/-/win32-x64-0.16.13.tgz#0b0989cf0e7887cb0f3124e705cee68a694b96dd"
   integrity sha512-A+U4gM6OOkPS03UgVU08GTpAAAxPsP/8Z4FmneGo4TaVSD99bK9gVJXlqUEPMO/htFXEAht2O6pX4ErtLY5tVg==
 
-"@playcanvas/observer@^1.3.5":
-  version "1.3.5"
-  resolved "https://registry.yarnpkg.com/@playcanvas/observer/-/observer-1.3.5.tgz#495adbc9196ec93325e0b6b09f7758949afdc01a"
-  integrity sha512-+CXmz0XoyeebBhro+wW/fKdX8hbKchmoqb+BfB8UfzicnGAYM0cihvkhf57PH/U7FktN0xWXLCMDx0ImD0ecVQ==
-
-"@playcanvas/pcui@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@playcanvas/pcui/-/pcui-3.0.0.tgz#c0f54ccb7d21c8d297d5a2ca4647e76c8733e2bb"
-  integrity sha512-i8OwUlMXf8rkMIlPvzorthKDxbC0M6BpRNKKL+99X3h6xysePHWBgANQu3vqdQu/or8qqtlgFFsFYmVOjMqtbw==
-
 adm-zip@^0.5.9:
   version "0.5.9"
   resolved "https://registry.yarnpkg.com/adm-zip/-/adm-zip-0.5.9.tgz#b33691028333821c0cf95c31374c5462f2905a83"

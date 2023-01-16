@@ -1,27 +1,25 @@
-// import NoPackageJson from './no-package';
 import PackagePanel from './package-panel';
-import { Container, TextInput, InfoBox } from '@playcanvas/pcui'
 import '../styles/main.css'
 
 const MAX_RESULTS = 5
 const MIN_SEARCH_NUM_CHAR = 3
         
-export default class PackageManagerSettings extends Container {
+export default class PackageManagerSettings extends pcui.Container {
 
     constructor(){
 
         super()
 
         let currentSearch
-        const searchInput = new TextInput({ keyChange: true, placeholder: 'Add Library' })
-        const resultsCont = new Container({ hidden: true })
-        this.info = new InfoBox({
+        const searchInput = new pcui.TextInput({ keyChange: true, placeholder: 'Add Library' })
+        const resultsCont = new pcui.Container({ hidden: true })
+        this.info = new pcui.InfoBox({
             icon: 'E138',
             unsafe: true,
             title: 'No Libraries installed',
             text: "Use the search above to find and install libs from the <a href='https://www.npmjs.com/' target='_blank'>npm</a> registry"
         })
-        this.noResults = new InfoBox({
+        this.noResults = new pcui.InfoBox({
             icon: 'E395',
             // unsafe: true,
             // title: 'No Dependencies installed',
@@ -29,7 +27,7 @@ export default class PackageManagerSettings extends Container {
             text: "It looks like there aren't any matches for that query"
         })
 
-        this.installedPkgsCont = new Container()
+        this.installedPkgsCont = new pcui.Container()
         this.deps = {}
         
         this.append(searchInput)
@@ -44,7 +42,7 @@ export default class PackageManagerSettings extends Container {
         this.installedPkgsCont.style.margin = '3px 8px'
 
         const results = Array.from(new Array(MAX_RESULTS)).map(_ => {
-            const info = new InfoBox({
+            const info = new pcui.InfoBox({
                 icon: 'E410',
                 title: '',
                 text: ''
