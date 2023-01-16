@@ -2,7 +2,9 @@
 
 ## 0.0.3
 
-The UI for installed packages has been updated so that you can now see the current installed package version aswell as changing it to any other release.
+PCPM has now been renamed to PlayBuild which is a little easier to use. Many references have been updated, but there still exist a few legacy instances that refer to pcpm.
+
+Also, the UI for installed packages has been updated so that you can now see the current installed package version aswell as changing it to any other release.
 
 ## 0.0.2
 
