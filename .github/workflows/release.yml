@@ -31,6 +31,15 @@ jobs:
           
       - run: yarn install && yarn run build
 
+      - name: Upload & release
+        uses: mnao305/chrome-extension-upload@v4.0.1
+        with:
+          file-path: pcpm.zip
+          extension-id: nehnoidafglmienfkfgghgokkccbpfap
+          client-id: ${{ secrets.GCP_CLIENT_ID }}
+          client-secret: ${{ secrets.GCP_CLIENT_SECRET }}
+          refresh-token: ${{ secrets.GCP_REFRESH_TOKEN }}
+
       - name: Create Release
         uses: ncipollo/release-action@v1
         env:
@@ -39,7 +48,7 @@ jobs:
           tag: v${{ steps.package-version.outputs.current-version }}
           body: ${{ env.CHANGELOG }}
           artifacts: 'pcpm.zip'
-          replacesArtifacts : true
+          replacesArtifacts : false
           makeLatest: true
           artifactErrorsFailBuild: true
           draft: false
