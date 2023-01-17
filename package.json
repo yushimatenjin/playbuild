@@ -21,7 +21,6 @@
     "debounce": "^1.2.1",
     "diff-match-patch-js-browser-and-nodejs": "^1.0.2",
     "esbuild-wasm": "^0.16.13",
-    "path-browserify": "^1.0.1",
-    "stacktrace-js": "^2.0.2"
+    "path-browserify": "^1.0.1"
   }
 }
