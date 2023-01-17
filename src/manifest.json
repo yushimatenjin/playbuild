@@ -1,7 +1,7 @@
 {
 	"name": "PlayBuild",
 	"version": "0.0.2",
-	"description": "A compiler, bundler and package manager for PlayCanvas that adds support for Javascript Modules, TypeScript JSX and all the regular features of modern web tooling. ",
+	"description": "A modern compiler, bundler and package manager for PlayCanvas that adds support for Modules, TypeScript JSX and more",
 	"manifest_version": 3,
 	"icons": { 
 		"16": "icon-16.png",
