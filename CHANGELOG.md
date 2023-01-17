@@ -4,31 +4,31 @@
 
 PCPM has now been rebranded as PlayBuild, which is a little easier to use. Most references have been updated, but there still exist a few legacy instances that refer to older pcpm package.
 
-	* **UI updates
+* **UI updates
 
-		The UI for installed external packages has been updated. You can now set the package version via the UI now rather than having to manually edit the `package.json`
+	The UI for installed external packages has been updated. You can now set the package version via the UI now rather than having to manually edit the `package.json`
 
-	* **Removed PCUI + Observer from the build
+* **Removed PCUI + Observer from the build
 
-		PlayBuild now uses the in-editor version of PCUI. The dependancy on pcui has now been removed from the build as it's already provided by the editor. This may have caused hard to debug issues with having two version of the library especially if versions became out of sync.
+	PlayBuild now uses the in-editor version of PCUI. The dependancy on pcui has now been removed from the build as it's already provided by the editor. This may have caused hard to debug issues with having two version of the library especially if versions became out of sync.
 
-	* ** Compiler options
+* ** Compiler options
 
-		You can now specific compiler options using a `playbuild` field in the `package.json`. This allows you to control the behaviour of the compiler by enabling minification or other features. These are a subset of the options available in [esbuild](https://esbuild.github.io/api/#optimization)
+	You can now specific compiler options using a `playbuild` field in the `package.json`. This allows you to control the behaviour of the compiler by enabling minification or other features. These are a subset of the options available in [esbuild](https://esbuild.github.io/api/#optimization)
 
-		```javascript
-		{
-			dependencies: {},
-			playbuild: {
-				define: { DEBUG : 'true' }
-				drop : ['console', 'debugger']
-				keepNames: true,
-				mangleProps: true,
-				minify: true,
-				treeShaking: true
-			}
+	```javascript
+	{
+		dependencies: {},
+		playbuild: {
+			define: { DEBUG : 'true' }
+			drop : ['console', 'debugger']
+			keepNames: true,
+			mangleProps: true,
+			minify: true,
+			treeShaking: true
 		}
-		```
+	}
+	```
 
 ## 0.0.2
 
