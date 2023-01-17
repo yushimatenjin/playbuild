@@ -33,16 +33,12 @@ jobs:
 
       - name: Upload & release
         uses: mnao305/chrome-extension-upload@v4.0.1
-				env:
-          GCP_CLIENT_ID: ${{ secrets.GCP_CLIENT_ID }}
-          GCP_CLIENT_SECRET: ${{ secrets.GCP_CLIENT_SECRET }}
-          GCP_REFRESH_TOKEN: ${{ secrets.GCP_REFRESH_TOKEN }}
         with:
           file-path: playbuild.zip
           extension-id: nehnoidafglmienfkfgghgokkccbpfap
-          client-id: ${{ env.GCP_CLIENT_ID }}
-          client-secret: ${{ env.GCP_CLIENT_SECRET }}
-          refresh-token: ${{ env.GCP_REFRESH_TOKEN }}
+          client-id: ${{ secrets.GCP_CLIENT_ID }}
+          client-secret: ${{ secrets.GCP_CLIENT_SECRET }}
+          refresh-token: ${{ secrets.GCP_REFRFESH_TOKEN }}
 
       - name: Create Release
         uses: ncipollo/release-action@v1
