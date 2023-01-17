@@ -18,13 +18,6 @@ jobs:
         id: package-version
         uses: martinbeentjes/npm-get-version-action@main
 
-      - name: Extract changelog
-        run: |
-          CHANGELOG=$(awk -v ver=${{ steps.package-version.outputs.current-version }} '/^## / { if (p) { exit }; if ($2 == ver) { p=1; next} } p' CHANGELOG.md)
-          echo "CHANGELOG<<EOF" >> $GITHUB_ENV
-          echo "$CHANGELOG" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
-
       - uses: actions/setup-node@v3
         with:
           node-version: 16
@@ -39,6 +32,13 @@ jobs:
           client-id: ${{ secrets.GCP_CLIENT_ID }}
           client-secret: ${{ secrets.GCP_CLIENT_SECRET }}
           refresh-token: ${{ secrets.GCP_REFRESH_TOKEN }}
+          
+      - name: Extract changelog
+        run: |
+          CHANGELOG=$(awk -v ver=${{ steps.package-version.outputs.current-version }} '/^## / { if (p) { exit }; if ($2 == ver) { p=1; next} } p' CHANGELOG.md)
+          echo "CHANGELOG<<EOF" >> $GITHUB_ENV
+          echo "$CHANGELOG" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
       - name: Create Release
         uses: ncipollo/release-action@v1
