@@ -14,6 +14,13 @@ const withIndex = files => {
     }
 }
 
+const allowedOpts = new Set(['define', 'drop', 'ignoreAnnotations', 'inject', 'keepNames', 'mangleProps', 'minify', 'pure', 'treeShaking'])
+const sanitizeCompilerOpts = opts => {
+  const sanitized = {}
+  Object.keys(opts).forEach(key => !!allowedOpts.has(key) && (sanitized[key] = opts[key]))
+  return sanitized
+}
+
 let esBuildInitialised = false
 let incrementalBuild
 let updateFileCache, updateModules, options
@@ -38,7 +45,7 @@ const build = async (files, deps, opts) => {
   try {
     console.time('Full Build')
     const { outputFiles, errors, rebuild } = await esbuild.build({
-      ...options,
+      ...sanitizeCompilerOpts(options),
       entryPoints: ['/index.js'],
       plugins: [unpkgPlugin, filePlugin],
       bundle: true,
