@@ -34,7 +34,9 @@ MyScript.prototype.initialize = function() {
 ```
 
 ### External libraries
-PlayBuild also ships with a dedicated package manager so you can search for 3rd party libaries on npm and bundle them with your project. No more juggling your script loading order or searching for the libraries in the correct format. Playbuild will bundle the libraries you need and ignore the ones you don't
+PlayBuild also ships with a dedicated package manager so you can search for 3rd party libaries on npm and bundle them with your project. No more juggling your script loading order or searching for the libraries in the correct format. Playbuild will bundle the libraries you need and ignore the ones you don't.
+
+<img width="300" src="https://user-images.githubusercontent.com/430764/213010752-a5cc8f0c-6c65-4eac-9e2c-361a3a70c87c.png">
 
 ### Configurable
 You can also configure the bundler depending on your projects needs. You can optionally minify, remove console logs and disable tree-shaking. It supports a subset of the features found in WebPack and Esbuild. [Check the full list of options.](https://github.com/wearekuva/playbuild/wiki/Options)
