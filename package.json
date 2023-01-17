@@ -1,6 +1,6 @@
 {
   "name": "playbuild",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A compiler, bundler and package manager for PlayCanvas",
   "main": "index.js",
   "scripts": {
