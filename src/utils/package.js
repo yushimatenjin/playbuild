@@ -51,7 +51,6 @@ export const watchPkgJson = async onChange => {
     }
 
     const onAssetContentChanged = asset => {
-
         // const asset = findAsset(isPkgJson)
         const uid = asset.get('id')
         const doc = connection.get('documents', uid)
@@ -59,7 +58,6 @@ export const watchPkgJson = async onChange => {
     }
     
     const onAssetAdded = async asset => {
-        console.log(asset.get('name'), isPkgJson(asset))
         if(isPkgJson(asset)){
             editor.once('assets:remove', asset => isPkgJson(asset) && onAssetRemoved(asset))
             

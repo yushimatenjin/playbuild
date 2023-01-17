@@ -34,10 +34,11 @@ const build = async (files, deps, opts) => {
   
   updateFileCache = files => updateFiles(withIndex(files))
   updateModules = updatePackages 
-  
+
   try {
     console.time('Full Build')
     const { outputFiles, errors, rebuild } = await esbuild.build({
+      ...options,
       entryPoints: ['/index.js'],
       plugins: [unpkgPlugin, filePlugin],
       bundle: true,
