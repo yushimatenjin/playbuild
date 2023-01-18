@@ -5,7 +5,9 @@ export const resolveModule = function (p, files, extns = [".js", ".ts"]) {
   let modulePath = path.resolve(p);
   let ext = path.extname(p);
 
-  const isFile = (file) => !!files[file];
+  console.log('modulePath', modulePath)
+
+  const isFile = (file) => files[file] !== undefined
   const checkExts = (path, extns) => {
     let ext = extns.find((e) => isFile(path + e));
     // if (ext) console.log("found ", path + ext);
