@@ -35,7 +35,7 @@ export default function cachePlugin (files) {
                 build.onLoad({ filter: /.*/ }, async (args) => {
                     return {
                         contents: vfs[args.path],
-                        loader: 'jsx',
+                        loader: 'tsx',
                     }
                 })
             }
