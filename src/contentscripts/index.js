@@ -78,7 +78,6 @@ const build = async (files, deps, opts) => {
 const rebuild = async ({ cache, deps, opts }) => {
 
   const requiresFullBuild = !equals(options, opts)
-  console.log(equals(options, opts), options, opts)
 
   try{
 
