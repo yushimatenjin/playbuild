@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.4
+
+Fixed a few bugs for specific edge cases such as having no scripts in the project but PlayBuild is enabled. Also enabled the tsx compiler for all plugins
+
 ## 0.0.3
 
 PCPM has now been rebranded as PlayBuild, which is a little easier to use. Most references have been updated, but there still exist a few legacy instances that refer to older pcpm package.
