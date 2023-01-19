@@ -2,7 +2,7 @@
 <img display='inline' src="./static/icon.png" alt="PlayBuild" width="100">
 <h1 display='inline'>PlayBuild</h1>
 <h3>A bundler and package manager for PlayCanvas</h3>
-<b><a href='https://chrome.google.com/webstore/detail/pcpm/nehnoidafglmienfkfgghgokkccbpfap'>Install</a></b> |
+<b><a href='https://chrome.google.com/webstore/detail/playbuild/nehnoidafglmienfkfgghgokkccbpfap'>Install</a></b> |
 <b><a href='https://github.com/wearekuva/pcpm/wiki/Getting-Started'>Getting Started</a></b> |
 <b><a href='https://github.com/wearekuva/playbuild/wiki'>Docs</a></b>
 <br>
