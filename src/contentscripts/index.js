@@ -43,7 +43,7 @@ const build = async (files, deps, opts) => {
   updateModules = updatePackages 
 
   try {
-    const ctx =await esbuild.build({
+    const ctx =await esbuild.context({
       ...sanitizeCompilerOpts(options),
       entryPoints: ['/index.js'],
       plugins: [unpkgPlugin, filePlugin],
@@ -62,14 +62,14 @@ const build = async (files, deps, opts) => {
       },
     })
     console.time('Full Build')
-    await ctx.rebuild()
+    const { outputFiles, errors }= await ctx.rebuild()
     console.timeEnd('Full Build')
     incrementalBuild = ctx.rebuild
 
     if(!errors.length) window.postMessage({ message: 'pcpm:build:done', data: outputFiles[0].text })
 
   } catch(e) {
-      console.timeEnd('Full Build')
+    //   console.timeEnd('Full Build')
       window.postMessage({ message: 'pcpm:build:error', data: e.errors })
   }
     
@@ -86,9 +86,9 @@ const rebuild = async ({ cache, deps, opts }) => {
     else{
       updateFileCache(cache)
       updateModules(deps)
-      console.time('Incremental Build')
+      console.time('Build')
       const { outputFiles, errors } = await incrementalBuild()
-      console.timeEnd('Incremental Build')
+      console.timeEnd('Build')
 
       if(!errors.length) window.postMessage({ message: 'pcpm:build:done', data: outputFiles[0].text })
     }
