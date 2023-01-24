@@ -43,8 +43,7 @@ const build = async (files, deps, opts) => {
   updateModules = updatePackages 
 
   try {
-    console.time('Full Build')
-    const { outputFiles, errors, rebuild } = await esbuild.build({
+    const ctx =await esbuild.build({
       ...sanitizeCompilerOpts(options),
       entryPoints: ['/index.js'],
       plugins: [unpkgPlugin, filePlugin],
@@ -57,13 +56,15 @@ const build = async (files, deps, opts) => {
       // sourcemap: 'inline',
       // sourceRoot: 'https://launch.playcanvas.com/api/assets/files/',
       write: false,
-      incremental: true,
+      // incremental: true,
       banner: {
-          js: `/* Made with PlayBuild */`,
+        js: `/* Made with PlayBuild */`,
       },
     })
+    console.time('Full Build')
+    await ctx.rebuild()
     console.timeEnd('Full Build')
-    incrementalBuild = rebuild
+    incrementalBuild = ctx.rebuild
 
     if(!errors.length) window.postMessage({ message: 'pcpm:build:done', data: outputFiles[0].text })
 

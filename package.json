@@ -12,7 +12,7 @@
   "author": "Mark Lundin",
   "devDependencies": {
     "adm-zip": "^0.5.9",
-    "esbuild": "^0.16.13",
+    "esbuild": "^0.17.4",
     "esbuild-copy-static-files": "^0.1.0",
     "ws": "^8.11.0",
     "zip-a-folder": "^1.1.5"
@@ -20,7 +20,7 @@
   "dependencies": {
     "debounce": "^1.2.1",
     "diff-match-patch-js-browser-and-nodejs": "^1.0.2",
-    "esbuild-wasm": "^0.16.13",
+    "esbuild-wasm": "^0.17.4",
     "path-browserify": "^1.0.1"
   }
 }

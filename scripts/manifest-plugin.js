@@ -31,6 +31,8 @@ export default debug => ({
             const manifest = JSON.parse(source)
             manifest.version = version
 
+            console.log('onEnd')
+
             if(!debug) {
                 delete manifest.permissions // set the array to emppty for production
             }
@@ -38,6 +40,8 @@ export default debug => ({
             const content = JSON.stringify(manifest)
 
             await fs.writeFile('./build/manifest.json', content, {encoding:'utf8',flag:'w'})
+
+
         })
     }
 })
