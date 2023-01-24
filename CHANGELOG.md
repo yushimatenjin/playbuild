@@ -2,7 +2,9 @@
 
 ## 0.0.4
 
-Fixed a few bugs for specific edge cases such as having no scripts in the project but PlayBuild is enabled. Also enabled the tsx compiler for all plugins
+Fixed a few bugs for specific edge cases such as having no scripts in the project but PlayBuild is enabled. Also enabled the tsx compiler for all plugins.
+
+Updated esbuild + wasm bundler.
 
 ## 0.0.3
 
