@@ -9,7 +9,7 @@
 <br>
 
   
-PlayBuild is a in-editor compiler, bundler and package manager for the PlayCanvas editor that adds support for Javascript Modules, TypeScript JSX and all the usual features of modern web tooling. You can use js modules and npm libraries in your PlayCanvas projects and it supports all the regular features of a compiler such such as de-duping, minification and treeshaking and more. It also has preliminary support for JSX and TypeScript.
+PlayBuild is a in-editor compiler, bundler and package manager for the PlayCanvas editor that adds support for Javascript Modules, TypeScript JSX and all the usual features of modern web tooling. You can use js modules and npm libraries in your PlayCanvas projects and it supports all the regular features of a compiler such such as de-duping, minification and treeshaking and more.
 
 
 ```javascript
