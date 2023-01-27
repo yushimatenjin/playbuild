@@ -9,7 +9,7 @@
 <br>
 
   
-PlayBuild is a in-editor compiler, bundler and package manager for the PlayCanvas editor that adds support for Javascript Modules, TypeScript JSX and all the usual features of modern web tooling. You can use js modules and npm libraries in your PlayCanvas projects and it supports all the regular features of a compiler such such as de-duping, minification and treeshaking and more.
+PlayBuild is a in-editor compiler, bundler and package manager for the PlayCanvas editor that adds support for Javascript Modules, TypeScript JSX and all the usual features of modern web tooling. Use js modules and npm libraries in your PlayCanvas projects and it all the regular features of a modern web tooling such such as minification, treeshaking and more.
 
 
 ```javascript
@@ -33,14 +33,14 @@ MyScript.prototype.initialize = function() {
 }
 ```
 
-### External libraries
+### Install libraries from NPM
 PlayBuild also ships with a dedicated package manager so you can search for 3rd party libaries on npm and bundle them with your project. No more juggling your script loading order or searching for the libraries in the correct format. Playbuild will bundle the libraries you need and ignore the ones you don't.
 
 <img width="300" src="https://user-images.githubusercontent.com/430764/213010752-a5cc8f0c-6c65-4eac-9e2c-361a3a70c87c.png">
 
-### Configurable
+### More build options
 You can also configure the bundler depending on your projects needs. You can optionally minify, remove console logs and disable tree-shaking. It supports a subset of the features found in WebPack and Esbuild. [Check the full list of options.](https://github.com/wearekuva/playbuild/wiki/Options)
 
 ### How?
-PlayBuild is a compiler built around [ESBuild](https://github.com/evanw/esbuild). It syncs with your project and compiles and bundles your code. Your asset registry becomes a virtual file system so local modules can be resolved and remote modules can be imported. There is no run-time dependancy on any external CDN's, so you don't need to worry about outages in production
+Playbuild compiles and bundles your code down into a single built file that includes all of your projects scripts and any external libraries you've installed. At it's core it's built around [esbuild](https://github.com/evanw/esbuild), a modern, fast and robust compiler which means more compact code, less network requests and faster start up times. But more importantly it gives you more flexibility building your PlayCanvas projects and provides all the benefits of modern js tools.
 
