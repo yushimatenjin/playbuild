@@ -42,6 +42,10 @@ export const isBasis = asset =>
   isScript(asset) &&
   (asset.get('name') === 'basis.js' || asset.get('name') === 'basis.wasm.js')
 
+  export const isDraco = asset =>
+  isScript(asset) &&
+  (asset.get('name') === 'draco.js' || asset.get('name') === 'draco.wasm.js')
+
 export const isBuildDir = asset =>
   asset.get('type') === 'folder' &&
   asset.get('name') === BUILD_DIR_NAME &&
@@ -53,7 +57,7 @@ export const isBuildFile = asset =>
   asset.get('path').length === 1 && // that has one parent
   editor.call('assets:get', asset.get('path')[0]).get('name') === BUILD_DIR_NAME // called $BUILD_DIR_NAME
 
-export const isWatchableFile = asset => isScript(asset) && !isBuildFile(asset) && !isAmmo(asset) && !isBasis(asset)
+export const isWatchableFile = asset => isScript(asset) && !isBuildFile(asset) && !isAmmo(asset) && !isBasis(asset) && !isDraco(asset)
 export const findAsset = search => editor.call('assets:findOne', asset => search(asset))?.[1]
 
 export const getBuildDir = _ => {
